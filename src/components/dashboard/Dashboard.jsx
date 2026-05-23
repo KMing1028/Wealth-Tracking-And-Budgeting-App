@@ -1,9 +1,10 @@
 import React from 'react';
-import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals } from '../../utils/calculations';
+import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress } from '../../utils/calculations';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 
-export default function Dashboard({ wealthData, currentBudget, settings, onNavigate }) {
+export default function Dashboard({ wealthData, currentBudget, settings, goals = [], onNavigate }) {
   const currency = settings.currency;
+  const cycleDay = settings.budgetCycleDay || 27;
   const netWorth = calcNetWorth(wealthData);
 
   // Aggregate growth across all wealth items
@@ -23,7 +24,7 @@ export default function Dashboard({ wealthData, currentBudget, settings, onNavig
   const budgetPct = budgetLimit > 0 ? Math.min((totalSpent / budgetLimit) * 100, 100) : 0;
   const remaining = budgetLimit - totalSpent;
   const buckets = calcBucketTotals(currentBudget.expenses);
-  const daysLeft = daysUntilReset();
+  const daysLeft = daysUntilReset(cycleDay);
 
   const progressColor = budgetPct >= 90 ? '#ef4444' : budgetPct >= 70 ? '#f59e0b' : '#10b981';
 
@@ -99,6 +100,32 @@ export default function Dashboard({ wealthData, currentBudget, settings, onNavig
         )}
       </div>
 
+      {/* Goals Summary */}
+      {goals.length > 0 && (
+        <div className="card">
+          <div className="card-header-row">
+            <span className="card-title">🎯 Savings Goals</span>
+            <button className="link-btn" onClick={() => onNavigate('goals')}>View all →</button>
+          </div>
+          <div className="wealth-summary-list">
+            {goals.slice(0, 3).map(g => {
+              const p = getGoalProgress(g);
+              return (
+                <div key={g.id}>
+                  <div className="wealth-summary-row" style={{ border: 'none', paddingBottom: 4 }}>
+                    <span>{g.name}</span>
+                    <strong>{p.percentComplete.toFixed(0)}%</strong>
+                  </div>
+                  <div className="progress-track" style={{ marginBottom: 8 }}>
+                    <div className="progress-fill" style={{ width: `${p.percentComplete}%`, backgroundColor: 'var(--primary)' }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="quick-actions">
         <button className="quick-btn" onClick={() => onNavigate('wealth')}>
@@ -106,6 +133,14 @@ export default function Dashboard({ wealthData, currentBudget, settings, onNavig
         </button>
         <button className="quick-btn" onClick={() => onNavigate('budget')}>
           <span>💸</span> Log Expense
+        </button>
+      </div>
+      <div className="quick-actions" style={{ marginTop: 10 }}>
+        <button className="quick-btn" onClick={() => onNavigate('goals')}>
+          <span>🎯</span> Goals
+        </button>
+        <button className="quick-btn" onClick={() => onNavigate('analytics')}>
+          <span>📊</span> Analytics
         </button>
       </div>
     </div>

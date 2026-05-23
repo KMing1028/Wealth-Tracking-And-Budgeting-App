@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
 import { CURRENCIES } from '../../utils/currencies';
 import { generateSampleWealth, generateSampleBudget } from '../../utils/sampleData';
-import { saveWealth, saveBudgetHistory, saveSettings, setOnboardingComplete, setExampleDataCleared } from '../../utils/storage';
+import { saveWealth, saveBudgetHistory, saveSettings, setOnboardingComplete, setExampleDataCleared, DEFAULT_SETTINGS } from '../../utils/storage';
 
-const TOTAL_SCREENS = 9;
+const TOTAL_SCREENS = 10;
 
 export default function OnboardingFlow({ onComplete }) {
   const [screen, setScreen] = useState(1);
   const [selectedCurrency, setSelectedCurrency] = useState('MYR');
+  const [cycleDay, setCycleDay] = useState(27);
 
   const next = () => setScreen(s => Math.min(s + 1, TOTAL_SCREENS));
   const prev = () => setScreen(s => Math.max(s - 1, 1));
 
   function handleComplete(mode) {
-    saveSettings({ currency: selectedCurrency, dateFormat: 'DD MMM YYYY' });
+    saveSettings({
+      ...DEFAULT_SETTINGS,
+      currency: selectedCurrency,
+      budgetCycleDay: cycleDay,
+    });
     setOnboardingComplete();
     if (mode === 'fresh') {
       setExampleDataCleared();
@@ -36,6 +41,14 @@ export default function OnboardingFlow({ onComplete }) {
       {screen === 6 && <ScreenWalkthrough6 onNext={next} onPrev={prev} />}
       {screen === 7 && <ScreenWalkthrough7 onNext={next} onPrev={prev} />}
       {screen === 8 && (
+        <ScreenCycleDay
+          cycleDay={cycleDay}
+          onChange={setCycleDay}
+          onNext={next}
+          onPrev={prev}
+        />
+      )}
+      {screen === 9 && (
         <ScreenCurrency
           selectedCurrency={selectedCurrency}
           onSelect={setSelectedCurrency}
@@ -43,7 +56,39 @@ export default function OnboardingFlow({ onComplete }) {
           onPrev={prev}
         />
       )}
-      {screen === 9 && <ScreenComplete onComplete={handleComplete} />}
+      {screen === 10 && <ScreenComplete onComplete={handleComplete} />}
+    </div>
+  );
+}
+
+function ScreenCycleDay({ cycleDay, onChange, onNext, onPrev }) {
+  return (
+    <div className="ob-screen">
+      <ProgressDots current={7} total={TOTAL_SCREENS - 1} />
+      <div className="ob-feature-icon">📅</div>
+      <h2 className="ob-feature-title">When Does Your Budget Start?</h2>
+      <p className="ob-feature-desc">Pick the day your budget resets each month — typically your payday.</p>
+      <div className="ob-cycle-row">
+        <label className="ob-cycle-label">
+          <span>Reset on day</span>
+          <input
+            className="ob-cycle-input"
+            type="number"
+            min="1"
+            max="31"
+            value={cycleDay}
+            onChange={e => onChange(Math.max(1, Math.min(31, parseInt(e.target.value, 10) || 1)))}
+          />
+          <span>of each month</span>
+        </label>
+      </div>
+      <p className="ob-example">
+        If the day doesn't exist (e.g. Feb 31), the last day of the month is used instead.
+      </p>
+      <div className="ob-nav">
+        <button className="btn-ghost" onClick={onPrev}>Back</button>
+        <button className="btn-primary" onClick={onNext}>Continue</button>
+      </div>
     </div>
   );
 }
@@ -252,7 +297,7 @@ function ScreenWalkthrough7({ onNext, onPrev }) {
 function ScreenCurrency({ selectedCurrency, onSelect, onNext, onPrev }) {
   return (
     <div className="ob-screen">
-      <ProgressDots current={7} total={TOTAL_SCREENS - 1} />
+      <ProgressDots current={8} total={TOTAL_SCREENS - 1} />
       <div className="ob-feature-icon">🌍</div>
       <h2 className="ob-feature-title">Choose Your Currency</h2>
       <p className="ob-feature-desc">This will be used throughout the app. You can change it later in Settings.</p>

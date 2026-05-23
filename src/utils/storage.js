@@ -4,6 +4,8 @@ const KEYS = {
   SETTINGS: 'appSettings',
   ONBOARDING: 'onboardingComplete',
   EXAMPLE_CLEARED: 'exampleDataCleared',
+  GOALS: 'savingsGoals',
+  CUSTOM_CATEGORIES: 'customCategories',
 };
 
 function read(key, fallback = null) {
@@ -23,6 +25,15 @@ function write(key, value) {
   }
 }
 
+export const DEFAULT_SETTINGS = {
+  currency: 'MYR',
+  dateFormat: 'DD MMM YYYY',
+  theme: 'light',
+  budgetCycleDay: 27,
+};
+
+export const EMPTY_CUSTOM_CATEGORIES = { needs: [], wants: [], save_invest: [] };
+
 // Wealth
 export const getWealth = () => read(KEYS.WEALTH, []);
 export const saveWealth = (data) => write(KEYS.WEALTH, data);
@@ -31,9 +42,17 @@ export const saveWealth = (data) => write(KEYS.WEALTH, data);
 export const getBudgetHistory = () => read(KEYS.BUDGET, []);
 export const saveBudgetHistory = (data) => write(KEYS.BUDGET, data);
 
-// Settings
-export const getSettings = () => read(KEYS.SETTINGS, { currency: 'MYR', dateFormat: 'DD MMM YYYY' });
+// Settings — merge with defaults so legacy users get new fields
+export const getSettings = () => ({ ...DEFAULT_SETTINGS, ...(read(KEYS.SETTINGS, {}) || {}) });
 export const saveSettings = (data) => write(KEYS.SETTINGS, data);
+
+// Savings Goals
+export const getGoals = () => read(KEYS.GOALS, []);
+export const saveGoals = (data) => write(KEYS.GOALS, data);
+
+// Custom Categories
+export const getCustomCategories = () => ({ ...EMPTY_CUSTOM_CATEGORIES, ...(read(KEYS.CUSTOM_CATEGORIES, {}) || {}) });
+export const saveCustomCategories = (data) => write(KEYS.CUSTOM_CATEGORIES, data);
 
 // Onboarding
 export const isOnboardingComplete = () => read(KEYS.ONBOARDING, false);

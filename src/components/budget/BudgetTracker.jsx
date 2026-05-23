@@ -4,6 +4,7 @@ import {
 } from 'recharts';
 import { calcBucketTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { getCategoryIcon } from '../../utils/categories';
 import Modal from '../common/Modal';
 import ExpenseForm from './ExpenseForm';
 
@@ -13,22 +14,7 @@ const BUCKET_CONFIG = {
   save_invest: { label: '💪 Save & Invest', color: 'var(--invest-color)' },
 };
 
-const EXPENSE_CATEGORIES = {
-  needs: ['Housing', 'Utilities', 'Transportation', 'Groceries & Food', 'Insurance', 'Education'],
-  wants: ['Dining Out & Entertainment', 'Shopping & Personal Care', 'Subscriptions', 'Travel & Leisure', 'Hobbies & Recreation'],
-  save_invest: ['Emergency Fund Top-ups', 'Stock Market Investments', 'Retirement Account Contributions', 'Crypto/Alternative Investments', 'Savings Goals'],
-};
-
-const CATEGORY_ICONS = {
-  'Housing': '🏠', 'Utilities': '💡', 'Transportation': '🚗', 'Groceries & Food': '🛒',
-  'Insurance': '🛡️', 'Education': '📚', 'Dining Out & Entertainment': '🍽️',
-  'Shopping & Personal Care': '🛍️', 'Subscriptions': '📺', 'Travel & Leisure': '✈️',
-  'Hobbies & Recreation': '🎮', 'Emergency Fund Top-ups': '🏦',
-  'Stock Market Investments': '📈', 'Retirement Account Contributions': '🎯',
-  'Crypto/Alternative Investments': '🪙', 'Savings Goals': '🏠',
-};
-
-export default function BudgetTracker({ budgetHistory, updateCurrentBudget, currentBudget, settings }) {
+export default function BudgetTracker({ budgetHistory, updateCurrentBudget, currentBudget, settings, customCategories, goals, setGoals }) {
   const currency = settings.currency;
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [editExpense, setEditExpense] = useState(null);
@@ -212,7 +198,7 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
               {categoryBreakdown.map(c => (
                 <div key={c.category} className="category-breakdown-row">
                   <div className="cat-info">
-                    <span className="cat-icon">{CATEGORY_ICONS[c.category] || '💰'}</span>
+                    <span className="cat-icon">{getCategoryIcon(c.category, customCategories)}</span>
                     <span className="cat-name">{c.category}</span>
                     <span className="cat-bucket-tag" style={{ backgroundColor: BUCKET_CONFIG[c.bucket]?.color }}>
                       {c.bucket === 'save_invest' ? 'Save' : c.bucket}
@@ -284,9 +270,15 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
         >
           <ExpenseForm
             expense={editExpense}
-            categories={EXPENSE_CATEGORIES}
+            customCategories={customCategories}
+            goals={goals}
             onSave={handleSaveExpense}
             onCancel={() => { setShowExpenseForm(false); setEditExpense(null); }}
+            onAllocateToGoal={(goalId, amount) => {
+              setGoals(prev => prev.map(g => g.id === goalId
+                ? { ...g, currentAmount: g.currentAmount + amount }
+                : g));
+            }}
           />
         </Modal>
       )}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getAllCategories } from '../../utils/categories';
 
 const BUCKET_LABELS = {
   needs: '🏠 Needs',
@@ -10,11 +11,12 @@ function genId() {
   return `exp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
+export default function ExpenseForm({ expense, customCategories, goals = [], onSave, onCancel, onAllocateToGoal }) {
   const today = new Date().toISOString().split('T')[0];
 
   const defaultBucket = expense?.bucket || 'needs';
-  const defaultCategory = expense?.category || categories[defaultBucket][0];
+  const defaultCategories = getAllCategories(customCategories, defaultBucket);
+  const defaultCategory = expense?.category || defaultCategories[0]?.name || '';
 
   const [bucket, setBucket] = useState(defaultBucket);
   const [form, setForm] = useState({
@@ -22,12 +24,14 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
     amount: expense?.amount?.toString() || '',
     description: expense?.description || '',
     date: expense?.date ? expense.date.split('T')[0] : today,
+    goalId: expense?.goalId || '',
   });
   const [errors, setErrors] = useState({});
 
   function handleBucketChange(b) {
     setBucket(b);
-    setForm(f => ({ ...f, category: categories[b][0] }));
+    const cats = getAllCategories(customCategories, b);
+    setForm(f => ({ ...f, category: cats[0]?.name || '', goalId: b === 'save_invest' ? f.goalId : '' }));
   }
 
   function validate() {
@@ -35,6 +39,7 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
     const v = parseFloat(form.amount);
     if (isNaN(v) || v <= 0) e.amount = 'Enter a valid amount greater than 0';
     if (!form.date) e.date = 'Date is required';
+    if (!form.category) e.category = 'Select a category';
     return e;
   }
 
@@ -43,14 +48,21 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
-    onSave({
+    const payload = {
       id: expense?.id || genId(),
       date: new Date(form.date).toISOString(),
       amount: parseFloat(form.amount),
       category: form.category,
       bucket,
       description: form.description.trim(),
-    });
+    };
+    if (form.goalId) payload.goalId = form.goalId;
+
+    // If allocating to goal, increment goal's currentAmount
+    if (form.goalId && onAllocateToGoal && !expense) {
+      onAllocateToGoal(form.goalId, parseFloat(form.amount));
+    }
+    onSave(payload);
   }
 
   const set = (field) => (e) => {
@@ -58,9 +70,10 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
     setErrors(err => ({ ...err, [field]: undefined }));
   };
 
+  const currentCategories = getAllCategories(customCategories, bucket);
+
   return (
     <form className="form" onSubmit={handleSubmit} noValidate>
-      {/* Bucket Selector */}
       <div className="form-field">
         <label className="form-label">Bucket</label>
         <div className="bucket-selector">
@@ -77,15 +90,17 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* Category */}
       <div className="form-field">
         <label className="form-label">Category</label>
-        <select className="form-select" value={form.category} onChange={set('category')}>
-          {(categories[bucket] || []).map(c => <option key={c} value={c}>{c}</option>)}
+        <select className={`form-select ${errors.category ? 'input-error' : ''}`} value={form.category} onChange={set('category')}>
+          {currentCategories.length === 0 && <option value="">No categories — add one in Settings</option>}
+          {currentCategories.map(c => (
+            <option key={c.id} value={c.name}>{c.icon} {c.name}</option>
+          ))}
         </select>
+        {errors.category && <p className="error-msg">{errors.category}</p>}
       </div>
 
-      {/* Amount */}
       <div className="form-field">
         <label className="form-label">Amount</label>
         <input
@@ -100,7 +115,18 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
         {errors.amount && <p className="error-msg">{errors.amount}</p>}
       </div>
 
-      {/* Description */}
+      {bucket === 'save_invest' && goals.length > 0 && !expense && (
+        <div className="form-field">
+          <label className="form-label">Allocate to Goal <span className="optional">(optional)</span></label>
+          <select className="form-select" value={form.goalId} onChange={set('goalId')}>
+            <option value="">— None —</option>
+            {goals.map(g => (
+              <option key={g.id} value={g.id}>🎯 {g.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="form-field">
         <label className="form-label">Description <span className="optional">(optional)</span></label>
         <input
@@ -113,7 +139,6 @@ export default function ExpenseForm({ expense, categories, onSave, onCancel }) {
         />
       </div>
 
-      {/* Date */}
       <div className="form-field">
         <label className="form-label">Date</label>
         <input

@@ -5,6 +5,8 @@ import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import Dashboard from './components/dashboard/Dashboard';
 import WealthTracker from './components/wealth/WealthTracker';
 import BudgetTracker from './components/budget/BudgetTracker';
+import SavingsGoals from './components/goals/SavingsGoals';
+import Analytics from './components/analytics/Analytics';
 import Settings from './components/settings/Settings';
 import BottomNav from './components/common/BottomNav';
 import './App.css';
@@ -18,6 +20,8 @@ export default function App() {
     budgetHistory,
     currentBudget, updateCurrentBudget,
     settings, updateSettings,
+    goals, setGoals,
+    customCategories, setCustomCategories,
     reload,
   } = useAppData();
 
@@ -44,6 +48,7 @@ export default function App() {
             wealthData={wealthData}
             currentBudget={currentBudget}
             settings={settings}
+            goals={goals}
             onNavigate={setActiveTab}
           />
         )}
@@ -60,12 +65,31 @@ export default function App() {
             currentBudget={currentBudget}
             updateCurrentBudget={updateCurrentBudget}
             settings={settings}
+            customCategories={customCategories}
+            goals={goals}
+            setGoals={setGoals}
+          />
+        )}
+        {activeTab === 'goals' && (
+          <SavingsGoals
+            goals={goals}
+            setGoals={setGoals}
+            settings={settings}
+          />
+        )}
+        {activeTab === 'analytics' && (
+          <Analytics
+            budgetHistory={budgetHistory}
+            currentBudget={currentBudget}
+            settings={settings}
           />
         )}
         {activeTab === 'settings' && (
           <Settings
             settings={settings}
             updateSettings={updateSettings}
+            customCategories={customCategories}
+            setCustomCategories={setCustomCategories}
             onDataCleared={handleDataCleared}
           />
         )}
