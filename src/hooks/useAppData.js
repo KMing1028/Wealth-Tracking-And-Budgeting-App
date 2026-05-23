@@ -5,8 +5,11 @@ import {
   getSettings, saveSettings,
   getGoals, saveGoals,
   getCustomCategories, saveCustomCategories,
+  getDebts, saveDebts,
+  getLastDebtCycleReset, setLastDebtCycleReset,
 } from '../utils/storage';
 import { getOrCreateCurrentBudget } from '../utils/calculations';
+import { resetDebtsForCycle } from '../utils/debt';
 
 export function useAppData() {
   const [wealthData, setWealthDataState] = useState(() => getWealth());
@@ -14,6 +17,7 @@ export function useAppData() {
   const [settings, setSettingsState] = useState(() => getSettings());
   const [goals, setGoalsState] = useState(() => getGoals());
   const [customCategories, setCustomCategoriesState] = useState(() => getCustomCategories());
+  const [debts, setDebtsState] = useState(() => getDebts());
 
   // Apply theme to document
   useEffect(() => {
@@ -52,16 +56,39 @@ export function useAppData() {
     setCustomCategoriesState(next);
   }, []);
 
+  const setDebts = useCallback((data) => {
+    const next = typeof data === 'function' ? data(getDebts()) : data;
+    saveDebts(next);
+    setDebtsState(next);
+  }, []);
+
   const reload = useCallback(() => {
     setWealthDataState(getWealth());
     setBudgetHistoryState(getBudgetHistory());
     setSettingsState(getSettings());
     setGoalsState(getGoals());
     setCustomCategoriesState(getCustomCategories());
+    setDebtsState(getDebts());
   }, []);
 
   const cycleDay = settings.budgetCycleDay || 27;
   const currentBudget = getOrCreateCurrentBudget(budgetHistory, cycleDay);
+
+  // Reset debt payment status when a new budget cycle starts
+  useEffect(() => {
+    if (!currentBudget?.monthStartDate) return;
+    const cycleKey = currentBudget.monthStartDate.split('T')[0];
+    const last = getLastDebtCycleReset();
+    if (last !== cycleKey) {
+      const currentDebts = getDebts();
+      if (currentDebts.some(d => d.paidThisCycle)) {
+        const reset = resetDebtsForCycle(currentDebts);
+        saveDebts(reset);
+        setDebtsState(reset);
+      }
+      setLastDebtCycleReset(cycleKey);
+    }
+  }, [currentBudget?.monthStartDate]);
 
   const updateCurrentBudget = useCallback((updater) => {
     setBudgetHistory(prev => {
@@ -82,6 +109,7 @@ export function useAppData() {
     settings, updateSettings,
     goals, setGoals,
     customCategories, setCustomCategories,
+    debts, setDebts,
     reload,
   };
 }

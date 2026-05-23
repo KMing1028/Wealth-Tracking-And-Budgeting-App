@@ -90,6 +90,21 @@ export function markWeeklySummaryShown() {
   localStorage.setItem('weeklySummaryShown', thisWeekKey());
 }
 
+// --- Debt Payment Reminder ---
+// Show on budget cycle reset day if there are unpaid debts.
+export function checkDebtPaymentReminder(debts, cycleDay) {
+  if (!debts || debts.length === 0) return null;
+  const isResetDay = new Date().getDate() === cycleDay;
+  if (!isResetDay) return null;
+  if (localStorage.getItem('debtPaymentReminderShown') === todayKey()) return null;
+  const unpaid = debts.filter(d => !d.paidThisCycle && d.monthlyPayment > 0);
+  if (unpaid.length === 0) return null;
+  return { unpaidCount: unpaid.length, totalUnpaid: unpaid.reduce((s, d) => s + d.monthlyPayment, 0) };
+}
+export function markDebtPaymentReminderShown() {
+  localStorage.setItem('debtPaymentReminderShown', todayKey());
+}
+
 // --- 6. Wealth Growth Update ---
 export function shouldShowWealthGrowthUpdate() {
   return localStorage.getItem('wealthGrowthShown') !== thisMonthKey();

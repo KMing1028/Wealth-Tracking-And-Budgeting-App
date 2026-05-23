@@ -1,27 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress } from '../../utils/calculations';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
+import { totalDebt, paidThisCycleCount, estimateDebtFreeDate } from '../../utils/debt';
 import {
   shouldShowBudgetResetNotification, markBudgetResetShown,
   shouldShowWeeklySummary, generateWeeklySummary, markWeeklySummaryShown,
   shouldShowWealthGrowthUpdate, calculateMonthlyGrowth, markWealthGrowthShown,
+  checkDebtPaymentReminder, markDebtPaymentReminderShown,
 } from '../../utils/notifications';
 
-export default function Dashboard({ wealthData, currentBudget, settings, goals = [], onNavigate }) {
+export default function Dashboard({ wealthData, currentBudget, settings, goals = [], debts = [], onNavigate }) {
   const currency = settings.currency;
   const cycleDay = settings.budgetCycleDay || 27;
-  const netWorth = calcNetWorth(wealthData);
+  const totalAssets = calcNetWorth(wealthData);
+  const totalDebts = totalDebt(debts);
+  const netWorth = totalAssets - totalDebts;
 
   const [showResetCard, setShowResetCard] = useState(() => shouldShowBudgetResetNotification(cycleDay));
   const [showWeeklyCard, setShowWeeklyCard] = useState(() => shouldShowWeeklySummary());
   const [showWealthCard, setShowWealthCard] = useState(() => shouldShowWealthGrowthUpdate());
+  const [debtReminder, setDebtReminder] = useState(() => checkDebtPaymentReminder(debts, cycleDay));
 
   useEffect(() => {
     setShowResetCard(shouldShowBudgetResetNotification(cycleDay));
-  }, [cycleDay]);
+    setDebtReminder(checkDebtPaymentReminder(debts, cycleDay));
+  }, [cycleDay, debts]);
 
   const weeklySummary = showWeeklyCard ? generateWeeklySummary(currentBudget) : null;
   const wealthGrowth = showWealthCard ? calculateMonthlyGrowth(wealthData) : null;
+  const debtFreeDate = debts.length > 0 ? estimateDebtFreeDate(debts) : null;
+  const paidCount = paidThisCycleCount(debts);
 
   // Aggregate growth across all wealth items
   const totalGrowth = wealthData.reduce((acc, item) => {
@@ -103,13 +111,47 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
 
       {/* Net Worth Hero */}
       <div className="hero-card">
-        <p className="hero-label">Total Net Worth</p>
+        <p className="hero-label">Net Worth <span className="hero-sublabel">(Assets − Debt)</span></p>
         <h2 className="hero-value">{formatCurrency(netWorth, currency)}</h2>
         <div className="growth-badges">
           <GrowthBadge label="YTD" pct={ytdPct} abs={totalGrowth.ytd.abs} currency={currency} />
           <GrowthBadge label="1Y" pct={oneYPct} abs={totalGrowth.oneY.abs} currency={currency} />
         </div>
       </div>
+
+      {/* 3 Quick Stats */}
+      <div className="quick-stats-grid">
+        <button className="quick-stat-card assets" onClick={() => onNavigate('wealth')}>
+          <span className="quick-stat-label">Assets</span>
+          <strong className="quick-stat-value">{formatCurrency(totalAssets, currency)}</strong>
+        </button>
+        <button className="quick-stat-card debts" onClick={() => onNavigate('debt')}>
+          <span className="quick-stat-label">Debt</span>
+          <strong className="quick-stat-value">{formatCurrency(totalDebts, currency)}</strong>
+        </button>
+        <div className="quick-stat-card growth">
+          <span className="quick-stat-label">YTD Growth</span>
+          <strong className={`quick-stat-value ${ytdPct >= 0 ? 'green' : 'red'}`}>
+            {ytdPct >= 0 ? '+' : ''}{ytdPct.toFixed(1)}%
+          </strong>
+        </div>
+      </div>
+
+      {/* Debt Payment Reminder */}
+      {debtReminder && (
+        <div className="notif-card budget-warn level-90">
+          <div className="notif-card-header">
+            <span className="notif-card-title">🏦 Debt Payment Due</span>
+            <button className="notif-card-close" onClick={() => { markDebtPaymentReminderShown(); setDebtReminder(null); }} aria-label="Dismiss">×</button>
+          </div>
+          <p className="notif-card-body">
+            You have <strong>{debtReminder.unpaidCount} unpaid debt{debtReminder.unpaidCount !== 1 ? 's' : ''}</strong> totaling <strong>{formatCurrency(debtReminder.totalUnpaid, currency)}</strong> due this cycle.
+          </p>
+          <div className="notif-card-actions">
+            <button className="notif-card-btn" onClick={() => { onNavigate('debt'); markDebtPaymentReminderShown(); setDebtReminder(null); }}>View Debts</button>
+          </div>
+        </div>
+      )}
 
       {/* Budget Summary */}
       <div className="card">
@@ -166,6 +208,32 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         )}
       </div>
 
+      {/* Debt Summary */}
+      {debts.length > 0 && (
+        <div className="card">
+          <div className="card-header-row">
+            <span className="card-title">🏦 Debt Summary</span>
+            <button className="link-btn" onClick={() => onNavigate('debt')}>View all →</button>
+          </div>
+          <div className="wealth-summary-list">
+            <div className="wealth-summary-row">
+              <span>Total Debt</span>
+              <strong className="red">{formatCurrency(totalDebts, currency)}</strong>
+            </div>
+            <div className="wealth-summary-row">
+              <span>Paid This Cycle</span>
+              <strong>{paidCount} of {debts.length}</strong>
+            </div>
+            {debtFreeDate && (
+              <div className="wealth-summary-row">
+                <span>Debt-Free By</span>
+                <strong>{debtFreeDate.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}</strong>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Goals Summary */}
       {goals.length > 0 && (
         <div className="card">
@@ -202,11 +270,11 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         </button>
       </div>
       <div className="quick-actions" style={{ marginTop: 10 }}>
+        <button className="quick-btn" onClick={() => onNavigate('debt')}>
+          <span>🏦</span> Add Debt
+        </button>
         <button className="quick-btn" onClick={() => onNavigate('goals')}>
           <span>🎯</span> Goals
-        </button>
-        <button className="quick-btn" onClick={() => onNavigate('analytics')}>
-          <span>📊</span> Analytics
         </button>
       </div>
     </div>

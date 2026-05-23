@@ -6,6 +6,8 @@ const KEYS = {
   EXAMPLE_CLEARED: 'exampleDataCleared',
   GOALS: 'savingsGoals',
   CUSTOM_CATEGORIES: 'customCategories',
+  DEBTS: 'debts',
+  LAST_DEBT_CYCLE_RESET: 'lastDebtCycleReset',
 };
 
 function read(key, fallback = null) {
@@ -53,6 +55,12 @@ export const saveGoals = (data) => write(KEYS.GOALS, data);
 // Custom Categories
 export const getCustomCategories = () => ({ ...EMPTY_CUSTOM_CATEGORIES, ...(read(KEYS.CUSTOM_CATEGORIES, {}) || {}) });
 export const saveCustomCategories = (data) => write(KEYS.CUSTOM_CATEGORIES, data);
+
+// Debts
+export const getDebts = () => read(KEYS.DEBTS, []);
+export const saveDebts = (data) => write(KEYS.DEBTS, data);
+export const getLastDebtCycleReset = () => read(KEYS.LAST_DEBT_CYCLE_RESET, null);
+export const setLastDebtCycleReset = (dateKey) => write(KEYS.LAST_DEBT_CYCLE_RESET, dateKey);
 
 // Onboarding
 export const isOnboardingComplete = () => read(KEYS.ONBOARDING, false);

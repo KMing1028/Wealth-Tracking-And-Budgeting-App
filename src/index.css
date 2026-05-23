@@ -299,8 +299,8 @@ body {
 }
 
 .bottom-nav-item.active { color: var(--primary); }
-.nav-icon { font-size: 18px; line-height: 1; }
-.nav-label { font-size: 9px; font-weight: 500; letter-spacing: 0.2px; }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.2px; }
 
 /* ===== Modal ===== */
 .modal-overlay {
@@ -1382,3 +1382,283 @@ body {
 }
 .notif-growth-stat.positive { color: var(--success); }
 .notif-growth-stat.negative { color: var(--danger); }
+
+/* ===== More Menu (bottom sheet) ===== */
+.more-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  z-index: 150;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.more-menu-sheet {
+  background: var(--surface);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px 16px 0 0;
+  padding: 8px 0 calc(16px + env(safe-area-inset-bottom));
+  animation: slideUp 0.25s ease;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.more-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.more-menu-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.more-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-soft);
+  min-height: 56px;
+}
+
+.more-menu-item:last-child { border-bottom: none; }
+.more-menu-item:hover { background: var(--surface-alt); }
+.more-menu-item.active { background: var(--primary-bg); }
+
+.more-menu-icon { font-size: 24px; flex-shrink: 0; }
+.more-menu-text { flex: 1; min-width: 0; }
+.more-menu-text strong { display: block; font-size: 15px; font-weight: 600; }
+.more-menu-text span { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.more-menu-chevron { font-size: 22px; color: var(--text-muted); }
+
+/* ===== Dashboard Quick Stats Grid ===== */
+.hero-sublabel { font-size: 12px; font-weight: 400; opacity: 0.85; margin-left: 4px; }
+
+.quick-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin: 0 16px 14px;
+}
+
+.quick-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--shadow);
+}
+
+.quick-stat-card:not(button) { cursor: default; }
+.quick-stat-card.assets { border-left: 3px solid var(--success); }
+.quick-stat-card.debts { border-left: 3px solid var(--danger); }
+.quick-stat-card.growth { border-left: 3px solid var(--primary); }
+
+.quick-stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.quick-stat-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.quick-stat-value.green { color: var(--success); }
+.quick-stat-value.red { color: var(--danger); }
+
+/* ===== Debt Tracker ===== */
+.debt-hero {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+[data-theme='dark'] .debt-hero {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+}
+
+.debt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 0 16px 12px;
+  box-shadow: var(--shadow);
+}
+
+.debt-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.debt-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.debt-card-icon { font-size: 28px; flex-shrink: 0; }
+.debt-card-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.debt-card-type { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+.debt-paid-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.debt-paid-badge.paid {
+  background: var(--positive-bg);
+  color: var(--positive-text);
+}
+.debt-paid-badge.unpaid {
+  background: var(--chip-bg);
+  color: var(--text-muted);
+}
+
+.debt-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.debt-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.debt-stat span {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.debt-stat strong {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.debt-eta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  background: var(--surface-alt);
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.debt-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.debt-paid-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex: 1;
+}
+
+.debt-paid-check input { width: 18px; height: 18px; cursor: pointer; }
+
+.debt-action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+/* Debt type grid (in form) */
+.debt-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.debt-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface-alt);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.debt-type-btn:hover { border-color: var(--primary); }
+.debt-type-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.debt-type-icon { font-size: 20px; flex-shrink: 0; }
+.debt-type-label { font-size: 12px; font-weight: 500; }
+
+/* ===== Onboarding additions ===== */
+.ob-notif-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 13px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-soft);
+}
+.ob-notif-row:last-child { border-bottom: none; }
+.ob-notif-row span { color: var(--text-secondary); }

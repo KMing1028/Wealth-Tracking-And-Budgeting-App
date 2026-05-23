@@ -6,6 +6,7 @@ import OnboardingFlow from './components/onboarding/OnboardingFlow';
 import Dashboard from './components/dashboard/Dashboard';
 import WealthTracker from './components/wealth/WealthTracker';
 import BudgetTracker from './components/budget/BudgetTracker';
+import DebtTracker from './components/debt/DebtTracker';
 import SavingsGoals from './components/goals/SavingsGoals';
 import Analytics from './components/analytics/Analytics';
 import Settings from './components/settings/Settings';
@@ -24,6 +25,7 @@ export default function App() {
     settings, updateSettings,
     goals, setGoals,
     customCategories, setCustomCategories,
+    debts, setDebts,
     reload,
   } = useAppData();
 
@@ -74,7 +76,15 @@ export default function App() {
             currentBudget={currentBudget}
             settings={settings}
             goals={goals}
+            debts={debts}
             onNavigate={setActiveTab}
+          />
+        )}
+        {activeTab === 'debt' && (
+          <DebtTracker
+            debts={debts}
+            setDebts={setDebts}
+            settings={settings}
           />
         )}
         {activeTab === 'wealth' && (
