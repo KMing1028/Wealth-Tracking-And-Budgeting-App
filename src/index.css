@@ -1176,3 +1176,209 @@ body {
 .ob-option-icon { font-size: 28px; }
 .ob-option-btn strong { font-size: 15px; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 3px; }
 .ob-option-btn p { font-size: 13px; color: var(--text-secondary); margin: 0; }
+
+/* ===== Notification Styles ===== */
+
+/* App-level banner (daily reminder) */
+.notif-banner {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+.notif-banner-icon { font-size: 18px; flex-shrink: 0; }
+.notif-banner-text { flex: 1; }
+.notif-banner-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.85);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Notification cards */
+.notif-card {
+  border-radius: 12px;
+  margin: 0 16px 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow);
+}
+
+.notif-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notif-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notif-card-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.55;
+  padding: 0;
+  color: inherit;
+}
+
+.notif-card-close:hover { opacity: 1; }
+
+.notif-card-body {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notif-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.notif-card-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Budget Cycle Reset — blue */
+.notif-card.reset {
+  background: var(--primary-bg);
+  border: 1.5px solid var(--primary-border);
+  color: var(--text-primary);
+}
+.notif-card.reset .notif-card-btn {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Budget Warning — red/amber */
+.notif-card.budget-warn {
+  color: var(--text-primary);
+}
+.notif-card.budget-warn.level-75 {
+  background: #fefce8;
+  border: 1.5px solid #fde047;
+}
+.notif-card.budget-warn.level-90 {
+  background: #fff7ed;
+  border: 1.5px solid #fb923c;
+}
+.notif-card.budget-warn.level-100 {
+  background: var(--negative-bg);
+  border: 1.5px solid var(--danger);
+}
+[data-theme='dark'] .notif-card.budget-warn.level-75 {
+  background: #2d2a00;
+  border-color: #a16207;
+}
+[data-theme='dark'] .notif-card.budget-warn.level-90 {
+  background: #2d1600;
+  border-color: #c2410c;
+}
+[data-theme='dark'] .notif-card.budget-warn.level-100 {
+  background: var(--negative-bg);
+  border-color: var(--danger);
+}
+.notif-card.budget-warn .notif-card-btn {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Daily reminder card inside Budget Tracker */
+.notif-card.reminder {
+  background: var(--surface-alt);
+  border: 1.5px solid var(--border);
+  color: var(--text-primary);
+}
+.notif-card.reminder .notif-card-btn {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Goal milestone — celebration */
+.notif-card.milestone {
+  background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+  border: 1.5px solid #d8b4fe;
+  color: var(--text-primary);
+}
+[data-theme='dark'] .notif-card.milestone {
+  background: linear-gradient(135deg, #2e1a40 0%, #3b1f5e 100%);
+  border-color: #7c3aed;
+}
+.notif-card.milestone .notif-card-btn {
+  background: #7c3aed;
+  color: #fff;
+}
+.milestone-emoji {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* Weekly summary */
+.notif-card.weekly {
+  background: var(--positive-bg);
+  border: 1.5px solid var(--invest-color);
+  color: var(--text-primary);
+}
+.notif-card.weekly .notif-card-btn {
+  background: var(--invest-color);
+  color: #fff;
+}
+
+/* Wealth growth */
+.notif-card.wealth-growth {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, #ede9fe 100%);
+  border: 1.5px solid var(--primary-border);
+  color: var(--text-primary);
+}
+[data-theme='dark'] .notif-card.wealth-growth {
+  background: linear-gradient(135deg, #1e293b 0%, #1e1535 100%);
+  border-color: #334155;
+}
+.notif-card.wealth-growth .notif-card-btn {
+  background: var(--primary);
+  color: #fff;
+}
+.notif-growth-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+.notif-growth-stat.positive { color: var(--success); }
+.notif-growth-stat.negative { color: var(--danger); }

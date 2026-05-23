@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { getGoalProgress } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { checkGoalMilestones, markMilestoneShown } from '../../utils/notifications';
 import Modal from '../common/Modal';
 import GoalForm from './GoalForm';
 
@@ -12,6 +13,8 @@ const STATUS_LABELS = {
   in_progress: 'In progress',
 };
 
+const MILESTONE_EMOJIS = { 25: '🌱', 50: '⭐', 75: '🔥', 100: '🎉' };
+
 export default function SavingsGoals({ goals, setGoals, settings }) {
   const currency = settings.currency;
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +22,12 @@ export default function SavingsGoals({ goals, setGoals, settings }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [contributeGoal, setContributeGoal] = useState(null);
   const [contribAmount, setContribAmount] = useState('');
+  const [dismissedMilestone, setDismissedMilestone] = useState(null);
+
+  const milestone = useMemo(() => {
+    if (dismissedMilestone) return null;
+    return checkGoalMilestones(goals);
+  }, [goals, dismissedMilestone]);
 
   function handleSave(goal) {
     if (editGoal) {
@@ -56,8 +65,33 @@ export default function SavingsGoals({ goals, setGoals, settings }) {
   const totalSaved = goals.reduce((s, g) => s + g.currentAmount, 0);
   const totalTarget = goals.reduce((s, g) => s + g.targetAmount, 0);
 
+  function dismissMilestone() {
+    if (milestone) {
+      markMilestoneShown(milestone.key);
+      setDismissedMilestone(milestone.key);
+    }
+  }
+
   return (
     <div className="screen-container">
+      {/* 4. Goal Milestone Celebration */}
+      {milestone && (
+        <div className="notif-card milestone">
+          <div className="milestone-emoji">{MILESTONE_EMOJIS[milestone.milestone] || '🎯'}</div>
+          <div className="notif-card-header">
+            <span className="notif-card-title">Milestone Reached!</span>
+            <button className="notif-card-close" onClick={dismissMilestone} aria-label="Dismiss">×</button>
+          </div>
+          <p className="notif-card-body">
+            You've reached <strong>{milestone.milestone}%</strong> of your <strong>{milestone.goal.name}</strong> goal!
+            {milestone.milestone === 100 ? " You've achieved your goal!" : ' Keep going!'}
+          </p>
+          <div className="notif-card-actions">
+            <button className="notif-card-btn" onClick={dismissMilestone}>Celebrate!</button>
+          </div>
+        </div>
+      )}
+
       <header className="screen-header">
         <h1 className="screen-title">Savings Goals</h1>
         <button className="btn-primary btn-sm" onClick={() => { setEditGoal(null); setShowForm(true); }}>+ Goal</button>

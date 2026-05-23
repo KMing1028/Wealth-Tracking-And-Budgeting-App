@@ -5,6 +5,10 @@ import {
 import { calcBucketTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { getCategoryIcon } from '../../utils/categories';
+import {
+  shouldShowDailyReminder, markDailyReminderShown,
+  checkBudgetLimitWarning, markBudgetWarningShown,
+} from '../../utils/notifications';
 import Modal from '../common/Modal';
 import ExpenseForm from './ExpenseForm';
 
@@ -23,6 +27,8 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
   const [budgetInput, setBudgetInput] = useState('');
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showDailyCard, setShowDailyCard] = useState(() => shouldShowDailyReminder());
+  const [budgetWarning, setBudgetWarning] = useState(null);
 
   // Build sorted month list (most recent first)
   const allBudgets = useMemo(() => {
@@ -41,6 +47,13 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
   const budgetPct = budgetLimit > 0 ? Math.min((totalSpent / budgetLimit) * 100, 100) : 0;
   const progressColor = budgetPct >= 90 ? '#ef4444' : budgetPct >= 70 ? '#f59e0b' : '#10b981';
   const buckets = calcBucketTotals(viewBudget.expenses);
+
+  // Check budget warning whenever current month budget changes
+  useMemo(() => {
+    if (!isCurrentMonth) return;
+    const warn = checkBudgetLimitWarning(currentBudget);
+    setBudgetWarning(warn);
+  }, [currentBudget, isCurrentMonth]);
 
   // Monthly comparison chart data (last 6 months)
   const comparisonData = useMemo(() => {
@@ -101,8 +114,41 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
     return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   }
 
+  const WARN_LABELS = { 75: '⚠️ 75% of budget used', 90: '🚨 90% of budget used', 100: '🔴 Budget limit reached!' };
+
   return (
     <div className="screen-container">
+      {/* 2. Daily Expense Reminder card */}
+      {showDailyCard && isCurrentMonth && (
+        <div className="notif-card reminder">
+          <div className="notif-card-header">
+            <span className="notif-card-title">💸 Daily Reminder</span>
+            <button className="notif-card-close" onClick={() => { markDailyReminderShown(); setShowDailyCard(false); }} aria-label="Dismiss">×</button>
+          </div>
+          <p className="notif-card-body">Have you logged all of today's expenses? Keeping records up to date helps you stay on budget.</p>
+          <div className="notif-card-actions">
+            <button className="notif-card-btn" onClick={() => { setShowExpenseForm(true); markDailyReminderShown(); setShowDailyCard(false); }}>Log Expense</button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Budget Limit Warning */}
+      {budgetWarning && isCurrentMonth && (
+        <div className={`notif-card budget-warn level-${budgetWarning.level}`}>
+          <div className="notif-card-header">
+            <span className="notif-card-title">{WARN_LABELS[budgetWarning.level]}</span>
+            <button className="notif-card-close" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }} aria-label="Dismiss">×</button>
+          </div>
+          <p className="notif-card-body">
+            You've used <strong>{budgetWarning.pct}%</strong> of your monthly budget.
+            {budgetWarning.level < 100 ? ' Consider reducing discretionary spending.' : ' You have exceeded your budget for this cycle.'}
+          </p>
+          <div className="notif-card-actions">
+            <button className="notif-card-btn" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>Got it</button>
+          </div>
+        </div>
+      )}
+
       <header className="screen-header">
         <h1 className="screen-title">Budget Tracker</h1>
         {isCurrentMonth && (
