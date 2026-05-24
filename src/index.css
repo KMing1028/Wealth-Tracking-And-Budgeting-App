@@ -462,8 +462,8 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 200;
-  padding: 0 0 env(safe-area-inset-bottom);
+  z-index: 500;
+  padding: 0;
 }
 
 .modal-content {
@@ -475,6 +475,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   color: var(--text-primary);
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .modal-header {
@@ -544,7 +545,17 @@ body {
 
 .error-msg { font-size: 12px; color: var(--danger); }
 
-.form-actions { display: flex; gap: 10px; padding-top: 4px; }
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  gap: 10px;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  z-index: 10;
+  margin-top: 8px;
+}
 .form-actions .btn-primary, .form-actions .btn-ghost { flex: 1; }
 
 .optional { font-weight: 400; color: var(--text-muted); }
