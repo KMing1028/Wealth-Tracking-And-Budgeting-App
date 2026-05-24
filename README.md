@@ -59,11 +59,11 @@ npm install --legacy-peer-deps
 
 3. **Start the development server:**
 ```bash
-npm start
+npm run dev
 ```
 
 4. **Open in browser:**
-- Automatically opens at `http://localhost:3000`
+- Automatically opens at `http://localhost:5173`
 - Or open manually if it doesn't start
 
 5. **Complete onboarding:**
