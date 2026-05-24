@@ -86,11 +86,11 @@
   --sai-left:   max(0px, env(safe-area-inset-left));
   --sai-right:  max(0px, env(safe-area-inset-right));
 
-  /* Card accent colors */
-  --card-accent:        #4a90e2;
-  --card-accent-bg:     #f0f9ff;
-  --card-danger-accent: #dc2626;
-  --card-danger-bg:     #fef2f2;
+  /* Card accent colors — Finch design tokens */
+  --card-accent:        var(--blue);
+  --card-accent-bg:     var(--blue-soft);
+  --card-danger-accent: var(--terracotta);
+  --card-danger-bg:     var(--terracotta-soft);
 }
 
 :root[data-theme='dark'] {
@@ -170,11 +170,11 @@
   --radius-md:        14px;
   --radius-lg:        18px;
 
-  /* Card accent colors — dark mode */
-  --card-accent:        #6ba8e8;
-  --card-accent-bg:     rgba(74, 144, 226, 0.10);
-  --card-danger-accent: #f87171;
-  --card-danger-bg:     rgba(220, 38, 38, 0.10);
+  /* Card accent colors — dark mode, Finch tokens */
+  --card-accent:        var(--blue);
+  --card-accent-bg:     var(--blue-soft);
+  --card-danger-accent: var(--terracotta);
+  --card-danger-bg:     var(--terracotta-soft);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -259,9 +259,8 @@ body {
 
 /* ===== Cards ===== */
 .card {
-  background: var(--card-accent-bg);
+  background: var(--surface);
   border: none;
-  border-left: 3px solid var(--card-accent);
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 12px;
@@ -992,9 +991,8 @@ body {
 
 /* ===== Savings Goals ===== */
 .goal-card {
-  background: var(--card-accent-bg);
+  background: var(--surface);
   border: none;
-  border-left: 3px solid var(--card-accent);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 10px;
@@ -1382,21 +1380,21 @@ body {
 }
 
 .notif-tray-success {
-  background: #f0fdf4;
-  border: 1.5px solid #86efac;
+  background: var(--sage-soft);
+  border: 1.5px solid var(--sage);
 }
 [data-theme='dark'] .notif-tray-success {
-  background: rgba(22, 163, 74, 0.12);
-  border-color: #166534;
+  background: var(--sage-soft);
+  border-color: var(--sage-dark);
 }
 
 .notif-tray-info {
-  background: #eff6ff;
-  border: 1.5px solid #93c5fd;
+  background: var(--blue-soft);
+  border: 1.5px solid var(--blue);
 }
 [data-theme='dark'] .notif-tray-info {
-  background: rgba(74, 144, 226, 0.12);
-  border-color: #1e40af;
+  background: var(--blue-soft);
+  border-color: var(--blue);
 }
 
 .notif-tray-content {
@@ -1410,8 +1408,8 @@ body {
   margin: 0 0 2px;
   line-height: 1.3;
 }
-.notif-tray-success .notif-tray-title { color: #16a34a; }
-.notif-tray-info .notif-tray-title { color: #2563eb; }
+.notif-tray-success .notif-tray-title { color: var(--sage-ink); }
+.notif-tray-info .notif-tray-title { color: var(--blue-ink); }
 
 .notif-tray-body {
   font-size: 11px;
@@ -1436,9 +1434,9 @@ body {
 }
 .notif-ok-btn:hover { opacity: 0.85; }
 
-.notif-ok-green { background: #16a34a; }
-.notif-ok-blue  { background: #4a90e2; }
-.notif-ok-red   { background: #dc2626; }
+.notif-ok-green { background: var(--sage); }
+.notif-ok-blue  { background: var(--blue); }
+.notif-ok-red   { background: var(--terracotta); }
 
 /* Wealth growth */
 .notif-card.wealth-growth {
@@ -2007,8 +2005,8 @@ body {
 /* ===== Budget Limit Warning Card ===== */
 
 .budget-warning-card {
-  background: #fef2f2;
-  border-left: 4px solid #dc2626;
+  background: var(--terracotta-soft);
+  border-left: 4px solid var(--terracotta);
   border-radius: 6px;
   padding: 1rem;
   margin: 0 0 1rem;
@@ -2016,12 +2014,12 @@ body {
 .budget-warning-title {
   font-size: 12px;
   font-weight: 600;
-  color: #dc2626;
+  color: var(--terracotta-ink);
   margin: 0;
 }
 .budget-warning-text {
   font-size: 11px;
-  color: #666;
+  color: var(--text-secondary);
   margin: 4px 0 0;
   line-height: 1.5;
 }
@@ -2039,18 +2037,18 @@ body {
   cursor: pointer;
 }
 .budget-warning-actions .warn-primary {
-  background: #dc2626;
+  background: var(--terracotta);
   color: #fff;
   border: none;
 }
 .budget-warning-actions .warn-secondary {
   background: transparent;
-  color: #dc2626;
-  border: 0.5px solid #dc2626;
+  color: var(--terracotta-ink);
+  border: 0.5px solid var(--terracotta);
 }
 [data-theme='dark'] .budget-warning-card {
-  background: rgba(220, 38, 38, 0.1);
-  border-left-color: #ef4444;
+  background: var(--terracotta-soft);
+  border-left-color: var(--terracotta);
 }
-[data-theme='dark'] .budget-warning-title { color: #ef4444; }
-[data-theme='dark'] .budget-warning-text  { color: #b3b3b3; }
+[data-theme='dark'] .budget-warning-title { color: var(--terracotta-ink); }
+[data-theme='dark'] .budget-warning-text  { color: var(--text-secondary); }
