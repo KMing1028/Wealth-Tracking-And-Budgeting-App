@@ -85,6 +85,12 @@
   --sai-bottom: max(0px, env(safe-area-inset-bottom));
   --sai-left:   max(0px, env(safe-area-inset-left));
   --sai-right:  max(0px, env(safe-area-inset-right));
+
+  /* Card accent colors */
+  --card-accent:        #4a90e2;
+  --card-accent-bg:     #f0f9ff;
+  --card-danger-accent: #dc2626;
+  --card-danger-bg:     #fef2f2;
 }
 
 :root[data-theme='dark'] {
@@ -163,6 +169,12 @@
   --radius-base:      10px;
   --radius-md:        14px;
   --radius-lg:        18px;
+
+  /* Card accent colors — dark mode */
+  --card-accent:        #6ba8e8;
+  --card-accent-bg:     rgba(74, 144, 226, 0.10);
+  --card-danger-accent: #f87171;
+  --card-danger-bg:     rgba(220, 38, 38, 0.10);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -247,8 +259,9 @@ body {
 
 /* ===== Cards ===== */
 .card {
-  background: var(--surface);
+  background: var(--card-accent-bg);
   border: none;
+  border-left: 3px solid var(--card-accent);
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 12px;
@@ -979,8 +992,9 @@ body {
 
 /* ===== Savings Goals ===== */
 .goal-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--card-accent-bg);
+  border: none;
+  border-left: 3px solid var(--card-accent);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 10px;
@@ -1466,9 +1480,9 @@ body {
 }
 
 .quick-stat-card:not(button) { cursor: default; }
-.quick-stat-card.assets { border-left: 3px solid var(--success); }
-.quick-stat-card.debts { border-left: 3px solid var(--danger); }
-.quick-stat-card.growth { border-left: 3px solid var(--primary); }
+.quick-stat-card.assets { border-left: 3px solid var(--card-accent); background: var(--card-accent-bg); }
+.quick-stat-card.debts  { border-left: 3px solid var(--card-danger-accent); background: var(--card-danger-bg); }
+.quick-stat-card.growth { border-left: 3px solid var(--card-accent); background: var(--card-accent-bg); }
 
 .quick-stat-label {
   font-size: 11px;
@@ -1496,8 +1510,9 @@ body {
 }
 
 .debt-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--card-danger-bg);
+  border: none;
+  border-left: 3px solid var(--card-danger-accent);
   border-radius: 12px;
   padding: 14px 16px;
   margin: 0 16px 12px;
