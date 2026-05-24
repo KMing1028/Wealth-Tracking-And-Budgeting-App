@@ -1,7 +1,7 @@
 {
-  "name": "wealth-tracking-and-budgeting-app",
-  "version": "1.0.0",
-  "description": "A comprehensive wealth tracking and budget management app with multi-currency support and interactive onboarding",
+  "name": "sprout",
+  "version": "2.0.0",
+  "description": "Financial companion that helps you grow. Manage wealth, budgets, debts, and savings goals.",
   "private": true,
   "type": "module",
   "engines": {
