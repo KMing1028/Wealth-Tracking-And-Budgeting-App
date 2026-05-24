@@ -4,6 +4,7 @@ import { formatCurrency, formatDate } from '../../utils/formatters';
 import { checkGoalMilestones, markMilestoneShown } from '../../utils/notifications';
 import Modal from '../common/Modal';
 import GoalForm from './GoalForm';
+import SuccessToast from '../common/SuccessToast';
 
 const STATUS_LABELS = {
   on_track: 'On track',
@@ -23,6 +24,7 @@ export default function SavingsGoals({ goals, setGoals, settings }) {
   const [contributeGoal, setContributeGoal] = useState(null);
   const [contribAmount, setContribAmount] = useState('');
   const [dismissedMilestone, setDismissedMilestone] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const milestone = useMemo(() => {
     if (dismissedMilestone) return null;
@@ -32,8 +34,10 @@ export default function SavingsGoals({ goals, setGoals, settings }) {
   function handleSave(goal) {
     if (editGoal) {
       setGoals(prev => prev.map(g => g.id === goal.id ? goal : g));
+      setSuccessMsg('Goal Updated!');
     } else {
       setGoals(prev => [...prev, goal]);
+      setSuccessMsg('Goal Successfully Created!');
     }
     setShowForm(false);
     setEditGoal(null);
@@ -179,6 +183,8 @@ export default function SavingsGoals({ goals, setGoals, settings }) {
           </form>
         </Modal>
       )}
+
+      {successMsg && <SuccessToast message={successMsg} onDismiss={() => setSuccessMsg(null)} />}
     </div>
   );
 }

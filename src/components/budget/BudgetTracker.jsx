@@ -10,6 +10,8 @@ import {
 } from '../../utils/notifications';
 import Modal from '../common/Modal';
 import ExpenseForm from './ExpenseForm';
+import ExpenseLog from './ExpenseLog';
+import SuccessToast from '../common/SuccessToast';
 
 const BUCKET_CONFIG = {
   needs: { label: '🏠 Needs', color: 'var(--needs-color)' },
@@ -27,6 +29,8 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('overview');
   const [budgetWarning, setBudgetWarning] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+  const [showExpenseLog, setShowExpenseLog] = useState(false);
 
   // Build sorted month list (most recent first)
   const allBudgets = useMemo(() => {
@@ -35,6 +39,8 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
     const others = budgetHistory.filter(b => b.monthStartDate !== currentBudget.monthStartDate);
     return [current, ...others.sort((a, b) => new Date(b.monthStartDate) - new Date(a.monthStartDate))];
   }, [budgetHistory, currentBudget]);
+
+  const allExpenses = useMemo(() => allBudgets.flatMap(b => b.expenses), [allBudgets]);
 
   const viewBudget = allBudgets[selectedMonthIndex] || currentBudget;
   const isCurrentMonth = selectedMonthIndex === 0;
@@ -85,8 +91,10 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
         ...b,
         expenses: b.expenses.map(e => e.id === expense.id ? expense : e),
       }));
+      setSuccessMsg('Expense Updated!');
     } else {
       updateCurrentBudget(b => ({ ...b, expenses: [...b.expenses, expense] }));
+      setSuccessMsg('Expense Successfully Added!');
     }
     setShowExpenseForm(false);
     setEditExpense(null);
@@ -114,6 +122,10 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
 
   const WARN_LABELS = { 75: '⚠️ Budget Alert: 75% Spent', 90: '⚠️ Budget Alert: 90% Spent', 100: '⚠️ Budget Alert: 100% Spent' };
 
+  if (showExpenseLog) {
+    return <ExpenseLog allExpenses={allExpenses} currency={currency} customCategories={customCategories} onBack={() => setShowExpenseLog(false)} />;
+  }
+
   return (
     <div className="screen-container">
       {/* Budget Limit Warning card */}
@@ -126,7 +138,7 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
           </p>
           <div className="budget-warning-actions">
             <button className="warn-primary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>View Budget</button>
-            <button className="warn-secondary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>Dismiss</button>
+            <button className="notif-ok-btn notif-ok-red" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>OK</button>
           </div>
         </div>
       )}
@@ -245,7 +257,10 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
 
       {activeTab === 'expenses' && (
         <div className="card">
-          <h3 className="card-title">All Expenses</h3>
+          <div className="card-header-row">
+            <h3 className="card-title" style={{ marginBottom: 0 }}>All Expenses</h3>
+            <button className="link-btn" onClick={() => setShowExpenseLog(true)}>View Full Log →</button>
+          </div>
           {viewBudget.expenses.length === 0 ? (
             <p className="empty-hint">No expenses logged yet.</p>
           ) : (
@@ -256,6 +271,7 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
                   key={expense.id}
                   expense={expense}
                   currency={currency}
+                  customCategories={customCategories}
                   canEdit={isCurrentMonth}
                   onEdit={() => { setEditExpense(expense); setShowExpenseForm(true); }}
                   onDelete={() => setDeleteConfirm(expense.id)}
@@ -344,15 +360,17 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
           </div>
         </Modal>
       )}
+
+      {successMsg && <SuccessToast message={successMsg} onDismiss={() => setSuccessMsg(null)} />}
     </div>
   );
 }
 
-function ExpenseRow({ expense, currency, canEdit, onEdit, onDelete }) {
+function ExpenseRow({ expense, currency, customCategories, canEdit, onEdit, onDelete }) {
   return (
     <div className="expense-row">
       <div className="expense-left">
-        <span className="expense-icon">{CATEGORY_ICONS[expense.category] || '💰'}</span>
+        <span className="expense-icon">{getCategoryIcon(expense.category, customCategories)}</span>
         <div>
           <p className="expense-category">{expense.category}</p>
           {expense.description && <p className="expense-desc">{expense.description}</p>}

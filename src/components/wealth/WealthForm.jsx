@@ -19,6 +19,7 @@ export default function WealthForm({ item, onSave, onCancel }) {
     date: today,
   });
   const [errors, setErrors] = useState({});
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   function validate() {
     const e = {};
@@ -53,63 +54,87 @@ export default function WealthForm({ item, onSave, onCancel }) {
     }
   }
 
+  function handleCancel() {
+    const hasData = !!(form.name || form.value);
+    if (hasData) {
+      setShowCancelConfirm(true);
+    } else {
+      onCancel();
+    }
+  }
+
   const set = (field) => (e) => {
     setForm(f => ({ ...f, [field]: e.target.value }));
     setErrors(err => ({ ...err, [field]: undefined }));
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit} noValidate>
-      <div className="form-field">
-        <label className="form-label">Category</label>
-        <select className="form-select" value={form.category} onChange={set('category')}>
-          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-        </select>
-      </div>
+    <>
+      <form className="form" onSubmit={handleSubmit} noValidate>
+        <div className="form-field">
+          <label className="form-label">Category</label>
+          <select className="form-select" value={form.category} onChange={set('category')}>
+            {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Name</label>
-        <input
-          className={`form-input ${errors.name ? 'input-error' : ''}`}
-          type="text"
-          placeholder="e.g. Maybank Savings, Bursa Malaysia"
-          value={form.name}
-          onChange={set('name')}
-          maxLength={60}
-        />
-        {errors.name && <p className="error-msg">{errors.name}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Name</label>
+          <input
+            className={`form-input ${errors.name ? 'input-error' : ''}`}
+            type="text"
+            placeholder="e.g. Maybank Savings, Bursa Malaysia"
+            value={form.name}
+            onChange={set('name')}
+            maxLength={60}
+          />
+          {errors.name && <p className="error-msg">{errors.name}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Current Value</label>
-        <input
-          className={`form-input ${errors.value ? 'input-error' : ''}`}
-          type="number"
-          placeholder="0.00"
-          min="0"
-          step="0.01"
-          value={form.value}
-          onChange={set('value')}
-        />
-        {errors.value && <p className="error-msg">{errors.value}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Current Value</label>
+          <input
+            className={`form-input ${errors.value ? 'input-error' : ''}`}
+            type="number"
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            value={form.value}
+            onChange={set('value')}
+          />
+          {errors.value && <p className="error-msg">{errors.value}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Date of Entry</label>
-        <input
-          className={`form-input ${errors.date ? 'input-error' : ''}`}
-          type="date"
-          value={form.date}
-          onChange={set('date')}
-          max={today}
-        />
-        {errors.date && <p className="error-msg">{errors.date}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Date of Entry</label>
+          <input
+            className={`form-input ${errors.date ? 'input-error' : ''}`}
+            type="date"
+            value={form.date}
+            onChange={set('date')}
+            max={today}
+          />
+          {errors.date && <p className="error-msg">{errors.date}</p>}
+        </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn-primary">Save</button>
-      </div>
-    </form>
+        <div className="form-actions">
+          <button type="button" className="btn-ghost" onClick={handleCancel}>Cancel</button>
+          <button type="submit" className="btn-primary">{item ? 'Save Changes' : '+ Add'}</button>
+        </div>
+      </form>
+
+      {showCancelConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-dialog">
+            <h3 className="confirm-title">Discard Changes?</h3>
+            <p className="confirm-body">Are you sure you want to cancel? Your data will not be saved.</p>
+            <div className="confirm-actions">
+              <button type="button" className="btn-ghost" onClick={() => setShowCancelConfirm(false)}>Keep Editing</button>
+              <button type="button" className="btn-danger" onClick={onCancel}>Discard</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

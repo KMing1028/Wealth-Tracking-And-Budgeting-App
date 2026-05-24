@@ -7,6 +7,7 @@ import { calcNetWorth, getGrowthMetrics, buildNetWorthChartData } from '../../ut
 import { formatCurrency, formatPercent, formatShortDate, formatDate } from '../../utils/formatters';
 import Modal from '../common/Modal';
 import WealthForm from './WealthForm';
+import SuccessToast from '../common/SuccessToast';
 
 const CATEGORY_COLORS = { savings: '#3b82f6', stocks: '#10b981', retirement: '#8b5cf6' };
 const CATEGORY_LABELS = { savings: '🏦 Savings', stocks: '📈 Stocks', retirement: '🎯 Retirement' };
@@ -16,6 +17,7 @@ export default function WealthTracker({ wealthData, setWealthData, settings }) {
   const [editItem, setEditItem] = useState(null);
   const [expanded, setExpanded] = useState({ savings: true, stocks: true, retirement: true });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const currency = settings.currency;
   const netWorth = calcNetWorth(wealthData);
@@ -35,8 +37,10 @@ export default function WealthTracker({ wealthData, setWealthData, settings }) {
   function handleSave(item) {
     if (editItem) {
       setWealthData(prev => prev.map(w => w.id === item.id ? item : w));
+      setSuccessMsg('Investment Updated!');
     } else {
       setWealthData(prev => [...prev, item]);
+      setSuccessMsg('Investment Successfully Added!');
     }
     setShowForm(false);
     setEditItem(null);
@@ -168,6 +172,8 @@ export default function WealthTracker({ wealthData, setWealthData, settings }) {
           </div>
         </Modal>
       )}
+
+      {successMsg && <SuccessToast message={successMsg} onDismiss={() => setSuccessMsg(null)} />}
     </div>
   );
 }

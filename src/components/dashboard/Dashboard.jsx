@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress } from '../../utils/calculations';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress, buildNetWorthChartData } from '../../utils/calculations';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { totalDebt, paidThisCycleCount, estimateDebtFreeDate } from '../../utils/debt';
 import {
@@ -40,6 +41,29 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
   const ytdPct = totalGrowth.ytd.base > 0 ? (totalGrowth.ytd.abs / totalGrowth.ytd.base) * 100 : 0;
   const oneYPct = totalGrowth.oneY.base > 0 ? (totalGrowth.oneY.abs / totalGrowth.oneY.base) * 100 : 0;
 
+  const [timeRange, setTimeRange] = useState('YTD');
+
+  const graphData = (() => {
+    const raw = buildNetWorthChartData(wealthData);
+    const now = new Date();
+    const cutoff = timeRange === 'YTD'
+      ? new Date(now.getFullYear(), 0, 1)
+      : new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const filtered = raw.filter(d => new Date(d.date) >= cutoff);
+    if (filtered.length < 2) {
+      return [
+        { label: 'Start', value: netWorth },
+        { label: 'Now', value: netWorth },
+      ];
+    }
+    return filtered.map(d => ({
+      label: d.date.slice(5), // MM-DD
+      value: d.total,
+    }));
+  })();
+
+  const trendColor = graphData[graphData.length - 1]?.value >= graphData[0]?.value ? '#22c55e' : '#ef4444';
+
   const totalSpent = currentBudget.expenses.reduce((s, e) => s + e.amount, 0);
   const budgetLimit = currentBudget.budgetLimit || 0;
   const budgetPct = budgetLimit > 0 ? Math.min((totalSpent / budgetLimit) * 100, 100) : 0;
@@ -50,33 +74,8 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
   const progressColor = budgetPct >= 90 ? '#ef4444' : budgetPct >= 70 ? '#f59e0b' : '#10b981';
 
   return (
+    <>
     <div className="screen-container">
-      {/* 1. Budget Cycle Reset banner */}
-      {showResetCard && (
-        <div className="budget-reset-banner">
-          <div className="budget-reset-icon">🔄</div>
-          <div className="budget-reset-content">
-            <p className="budget-reset-title">Budget Cycle Reset</p>
-            <p className="budget-reset-text">Your budget has reset on the {cycleDay}th. Ready to start fresh this cycle!</p>
-          </div>
-          <button className="budget-reset-dismiss" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }} aria-label="Dismiss">×</button>
-        </div>
-      )}
-
-      {/* 5. Weekly Spending Summary card (Sundays) */}
-      {showWeeklyCard && weeklySummary && (
-        <div className="weekly-summary-card">
-          <div className="weekly-summary-header">
-            <p className="weekly-summary-title">📊 Weekly Spending Summary</p>
-            <button className="weekly-summary-dismiss" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }} aria-label="Dismiss">×</button>
-          </div>
-          <p className="weekly-summary-intro">This week you spent:</p>
-          <p className="weekly-summary-total">
-            {weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''} &mdash; Total: <strong>{formatCurrency(weeklySummary.total, currency)}</strong>
-          </p>
-        </div>
-      )}
-
       <header className="screen-header">
         <h1 className="screen-title">Dashboard</h1>
         <p className="screen-subtitle">Your financial overview</p>
@@ -89,6 +88,36 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         <div className="growth-badges">
           <GrowthBadge label="YTD" pct={ytdPct} abs={totalGrowth.ytd.abs} currency={currency} />
           <GrowthBadge label="1Y" pct={oneYPct} abs={totalGrowth.oneY.abs} currency={currency} />
+        </div>
+
+        {/* Trend Graph */}
+        <div className="hero-graph">
+          <ResponsiveContainer width="100%" height={70}>
+            <AreaChart data={graphData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="netWorthGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={trendColor} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={trendColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="label" hide />
+              <YAxis hide domain={['auto', 'auto']} />
+              <Area type="monotone" dataKey="value" stroke={trendColor} strokeWidth={2} fill="url(#netWorthGrad)" dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* YTD / 1Y Toggle */}
+        <div className="hero-toggle">
+          {['YTD', '1Y'].map(r => (
+            <button
+              key={r}
+              className={`hero-toggle-btn ${timeRange === r ? 'active' : ''}`}
+              onClick={() => setTimeRange(r)}
+            >
+              {r}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -251,6 +280,31 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         </button>
       </div>
     </div>
+
+    {/* Fixed Notification Tray — above bottom nav */}
+    {(showResetCard || (showWeeklyCard && weeklySummary)) && (
+      <div className="notif-tray">
+        {showResetCard && (
+          <div className="notif-tray-card notif-tray-success">
+            <div className="notif-tray-content">
+              <p className="notif-tray-title">🔄 Budget Cycle Reset</p>
+              <p className="notif-tray-body">Your monthly budget has been reset. Start fresh!</p>
+            </div>
+            <button className="notif-ok-btn notif-ok-green" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }}>OK</button>
+          </div>
+        )}
+        {showWeeklyCard && weeklySummary && (
+          <div className="notif-tray-card notif-tray-info">
+            <div className="notif-tray-content">
+              <p className="notif-tray-title">📊 Weekly Spending Summary</p>
+              <p className="notif-tray-body">This week: {formatCurrency(weeklySummary.total, currency)} across {weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''}.</p>
+            </div>
+            <button className="notif-ok-btn notif-ok-blue" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }}>OK</button>
+          </div>
+        )}
+      </div>
+    )}
+  </>
   );
 }
 
