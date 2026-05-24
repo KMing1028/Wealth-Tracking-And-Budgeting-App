@@ -495,7 +495,7 @@ This project is licensed under the MIT License - see LICENSE file for details.
 
 ## 📞 Contact
 
-- **GitHub:** [@yourusername](https://github.com/KMing1028)
+- **GitHub:** [@KMing1028](https://github.com/KMing1028)
 
 ---
 
