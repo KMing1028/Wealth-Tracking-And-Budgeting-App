@@ -79,6 +79,12 @@
   --radius-base:      10px;
   --radius-md:        14px;
   --radius-lg:        18px;
+
+  /* iOS safe-area insets */
+  --sai-top:    max(0px, env(safe-area-inset-top));
+  --sai-bottom: max(0px, env(safe-area-inset-bottom));
+  --sai-left:   max(0px, env(safe-area-inset-left));
+  --sai-right:  max(0px, env(safe-area-inset-right));
 }
 
 :root[data-theme='dark'] {
@@ -185,6 +191,9 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--bg);
+  /* Landscape safe-area (notch on the side) */
+  padding-left: var(--sai-left);
+  padding-right: var(--sai-right);
 }
 
 /* ===== App Layout ===== */
@@ -212,7 +221,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 14px 16px;
+  padding: calc(var(--sai-top) + 14px) 16px 14px;
   margin: 0 -16px 16px;
   position: sticky;
   top: 0;
@@ -1089,7 +1098,7 @@ body {
 .compare-diff.under { color: var(--success); }
 
 /* ===== Sprout Onboarding (4-step) ===== */
-.ob-wrap { height: 100%; min-height: 100vh; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; }
+.ob-wrap { height: 100%; min-height: 100vh; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; padding-top: var(--sai-top); }
 .ob-screen { flex: 1; display: flex; flex-direction: column; padding: 70px 24px 36px; max-width: 480px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 .ob-welcome { padding-top: 90px; align-items: stretch; }
 .ob-brand { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 12px; }
