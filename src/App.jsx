@@ -20,6 +20,11 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    document.body.style.overscrollBehavior = 'none';
+    return () => { document.body.style.overscrollBehavior = ''; };
+  }, []);
+
   const [onboarded, setOnboarded] = useState(() => isOnboardingComplete());
   const [activeTab, setActiveTab] = useState('dashboard');
 
