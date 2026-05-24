@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress } from '../../utils/calculations';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { calcNetWorth, getGrowthMetrics, daysUntilReset, calcBucketTotals, getGoalProgress, buildNetWorthChartData } from '../../utils/calculations';
 import { formatCurrency, formatPercent } from '../../utils/formatters';
 import { totalDebt, paidThisCycleCount, estimateDebtFreeDate } from '../../utils/debt';
 import {
@@ -40,6 +41,29 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
   const ytdPct = totalGrowth.ytd.base > 0 ? (totalGrowth.ytd.abs / totalGrowth.ytd.base) * 100 : 0;
   const oneYPct = totalGrowth.oneY.base > 0 ? (totalGrowth.oneY.abs / totalGrowth.oneY.base) * 100 : 0;
 
+  const [timeRange, setTimeRange] = useState('YTD');
+
+  const graphData = (() => {
+    const raw = buildNetWorthChartData(wealthData);
+    const now = new Date();
+    const cutoff = timeRange === 'YTD'
+      ? new Date(now.getFullYear(), 0, 1)
+      : new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const filtered = raw.filter(d => new Date(d.date) >= cutoff);
+    if (filtered.length < 2) {
+      return [
+        { label: 'Start', value: netWorth },
+        { label: 'Now', value: netWorth },
+      ];
+    }
+    return filtered.map(d => ({
+      label: d.date.slice(5), // MM-DD
+      value: d.total,
+    }));
+  })();
+
+  const trendColor = graphData[graphData.length - 1]?.value >= graphData[0]?.value ? '#22c55e' : '#ef4444';
+
   const totalSpent = currentBudget.expenses.reduce((s, e) => s + e.amount, 0);
   const budgetLimit = currentBudget.budgetLimit || 0;
   const budgetPct = budgetLimit > 0 ? Math.min((totalSpent / budgetLimit) * 100, 100) : 0;
@@ -64,6 +88,36 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         <div className="growth-badges">
           <GrowthBadge label="YTD" pct={ytdPct} abs={totalGrowth.ytd.abs} currency={currency} />
           <GrowthBadge label="1Y" pct={oneYPct} abs={totalGrowth.oneY.abs} currency={currency} />
+        </div>
+
+        {/* Trend Graph */}
+        <div className="hero-graph">
+          <ResponsiveContainer width="100%" height={70}>
+            <AreaChart data={graphData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="netWorthGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={trendColor} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={trendColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis dataKey="label" hide />
+              <YAxis hide domain={['auto', 'auto']} />
+              <Area type="monotone" dataKey="value" stroke={trendColor} strokeWidth={2} fill="url(#netWorthGrad)" dot={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* YTD / 1Y Toggle */}
+        <div className="hero-toggle">
+          {['YTD', '1Y'].map(r => (
+            <button
+              key={r}
+              className={`hero-toggle-btn ${timeRange === r ? 'active' : ''}`}
+              onClick={() => setTimeRange(r)}
+            >
+              {r}
+            </button>
+          ))}
         </div>
       </div>
 

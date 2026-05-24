@@ -6,12 +6,14 @@ import {
 } from '../../utils/debt';
 import Modal from '../common/Modal';
 import DebtForm from './DebtForm';
+import SuccessToast from '../common/SuccessToast';
 
 export default function DebtTracker({ debts, setDebts, settings }) {
   const currency = settings.currency;
   const [showForm, setShowForm] = useState(false);
   const [editDebt, setEditDebt] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
   const total = totalDebt(debts);
   const monthlyTotal = totalMonthlyPayments(debts);
@@ -21,8 +23,10 @@ export default function DebtTracker({ debts, setDebts, settings }) {
   function handleSave(debt) {
     if (editDebt) {
       setDebts(prev => prev.map(d => d.id === debt.id ? debt : d));
+      setSuccessMsg('Debt Updated!');
     } else {
       setDebts(prev => [...prev, debt]);
+      setSuccessMsg('Debt Successfully Added!');
     }
     setShowForm(false);
     setEditDebt(null);
@@ -110,6 +114,8 @@ export default function DebtTracker({ debts, setDebts, settings }) {
           </div>
         </Modal>
       )}
+
+      {successMsg && <SuccessToast message={successMsg} onDismiss={() => setSuccessMsg(null)} />}
     </div>
   );
 }

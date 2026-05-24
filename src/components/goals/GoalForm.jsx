@@ -14,6 +14,7 @@ export default function GoalForm({ goal, onSave, onCancel }) {
     description: goal?.description || '',
   });
   const [errors, setErrors] = useState({});
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   function validate() {
     const e = {};
@@ -45,82 +46,106 @@ export default function GoalForm({ goal, onSave, onCancel }) {
     onSave(payload);
   }
 
+  function handleCancel() {
+    const hasData = !!(form.name || form.targetAmount);
+    if (hasData) {
+      setShowCancelConfirm(true);
+    } else {
+      onCancel();
+    }
+  }
+
   const set = (field) => (e) => {
     setForm(f => ({ ...f, [field]: e.target.value }));
     setErrors(err => ({ ...err, [field]: undefined }));
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit} noValidate>
-      <div className="form-field">
-        <label className="form-label">Goal Name</label>
-        <input
-          className={`form-input ${errors.name ? 'input-error' : ''}`}
-          type="text"
-          placeholder="e.g. New Laptop, Emergency Fund, Travel"
-          value={form.name}
-          onChange={set('name')}
-          maxLength={60}
-          autoFocus
-        />
-        {errors.name && <p className="error-msg">{errors.name}</p>}
-      </div>
+    <>
+      <form className="form" onSubmit={handleSubmit} noValidate>
+        <div className="form-field">
+          <label className="form-label">Goal Name</label>
+          <input
+            className={`form-input ${errors.name ? 'input-error' : ''}`}
+            type="text"
+            placeholder="e.g. New Laptop, Emergency Fund, Travel"
+            value={form.name}
+            onChange={set('name')}
+            maxLength={60}
+            autoFocus
+          />
+          {errors.name && <p className="error-msg">{errors.name}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Target Amount</label>
-        <input
-          className={`form-input ${errors.targetAmount ? 'input-error' : ''}`}
-          type="number"
-          placeholder="e.g. 5000"
-          min="0.01"
-          step="0.01"
-          value={form.targetAmount}
-          onChange={set('targetAmount')}
-        />
-        {errors.targetAmount && <p className="error-msg">{errors.targetAmount}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Target Amount</label>
+          <input
+            className={`form-input ${errors.targetAmount ? 'input-error' : ''}`}
+            type="number"
+            placeholder="e.g. 5000"
+            min="0.01"
+            step="0.01"
+            value={form.targetAmount}
+            onChange={set('targetAmount')}
+          />
+          {errors.targetAmount && <p className="error-msg">{errors.targetAmount}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Already Saved <span className="optional">(optional)</span></label>
-        <input
-          className={`form-input ${errors.currentAmount ? 'input-error' : ''}`}
-          type="number"
-          placeholder="0"
-          min="0"
-          step="0.01"
-          value={form.currentAmount}
-          onChange={set('currentAmount')}
-        />
-        {errors.currentAmount && <p className="error-msg">{errors.currentAmount}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Already Saved <span className="optional">(optional)</span></label>
+          <input
+            className={`form-input ${errors.currentAmount ? 'input-error' : ''}`}
+            type="number"
+            placeholder="0"
+            min="0"
+            step="0.01"
+            value={form.currentAmount}
+            onChange={set('currentAmount')}
+          />
+          {errors.currentAmount && <p className="error-msg">{errors.currentAmount}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Target Date <span className="optional">(optional)</span></label>
-        <input
-          className={`form-input ${errors.targetDate ? 'input-error' : ''}`}
-          type="date"
-          value={form.targetDate}
-          onChange={set('targetDate')}
-          min={today}
-        />
-        {errors.targetDate && <p className="error-msg">{errors.targetDate}</p>}
-      </div>
+        <div className="form-field">
+          <label className="form-label">Target Date <span className="optional">(optional)</span></label>
+          <input
+            className={`form-input ${errors.targetDate ? 'input-error' : ''}`}
+            type="date"
+            value={form.targetDate}
+            onChange={set('targetDate')}
+            min={today}
+          />
+          {errors.targetDate && <p className="error-msg">{errors.targetDate}</p>}
+        </div>
 
-      <div className="form-field">
-        <label className="form-label">Description <span className="optional">(optional)</span></label>
-        <textarea
-          className="form-textarea"
-          placeholder="What is this goal for?"
-          value={form.description}
-          onChange={set('description')}
-          maxLength={200}
-        />
-      </div>
+        <div className="form-field">
+          <label className="form-label">Description <span className="optional">(optional)</span></label>
+          <textarea
+            className="form-textarea"
+            placeholder="What is this goal for?"
+            value={form.description}
+            onChange={set('description')}
+            maxLength={200}
+          />
+        </div>
 
-      <div className="form-actions">
-        <button type="button" className="btn-ghost" onClick={onCancel}>Cancel</button>
-        <button type="submit" className="btn-primary">Save</button>
-      </div>
-    </form>
+        <div className="form-actions">
+          <button type="button" className="btn-ghost" onClick={handleCancel}>Cancel</button>
+          <button type="submit" className="btn-primary">{goal?.id ? 'Save Changes' : '+ Add Goal'}</button>
+        </div>
+      </form>
+
+      {showCancelConfirm && (
+        <div className="confirm-overlay">
+          <div className="confirm-dialog">
+            <h3 className="confirm-title">Discard Changes?</h3>
+            <p className="confirm-body">Are you sure you want to cancel? Your data will not be saved.</p>
+            <div className="confirm-actions">
+              <button type="button" className="btn-ghost" onClick={() => setShowCancelConfirm(false)}>Keep Editing</button>
+              <button type="button" className="btn-danger" onClick={onCancel}>Discard</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
