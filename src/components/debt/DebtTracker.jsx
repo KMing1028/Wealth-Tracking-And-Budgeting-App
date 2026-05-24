@@ -47,10 +47,11 @@ export default function DebtTracker({ debts, setDebts, settings }) {
         <button className="btn-primary btn-sm" onClick={() => { setEditDebt(null); setShowForm(true); }}>+ Debt</button>
       </header>
 
-      {debts.length > 0 && (
-        <div className="hero-card debt-hero">
-          <p className="hero-label">Total Debt</p>
-          <h2 className="hero-value">{formatCurrency(total, currency)}</h2>
+      {/* Total Debt hero — always visible */}
+      <div className="hero-card debt-hero">
+        <p className="hero-label">Total Debt</p>
+        <h2 className="hero-value">{formatCurrency(total, currency)}</h2>
+        {debts.length > 0 && (
           <div className="growth-badges">
             <div className="growth-badge">
               <span className="badge-label">Monthly</span>
@@ -69,8 +70,8 @@ export default function DebtTracker({ debts, setDebts, settings }) {
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {debts.length === 0 ? (
         <div className="empty-state">

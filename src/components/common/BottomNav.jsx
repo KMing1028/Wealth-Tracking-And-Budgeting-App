@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 const PRIMARY_TABS = [
-  { id: 'dashboard', label: 'Home', icon: '🏠' },
   { id: 'wealth', label: 'Wealth', icon: '💰' },
   { id: 'budget', label: 'Budget', icon: '💳' },
+  { id: 'dashboard', label: 'Home', icon: '🏠' },
   { id: 'debt', label: 'Debt', icon: '🏦' },
 ];
 

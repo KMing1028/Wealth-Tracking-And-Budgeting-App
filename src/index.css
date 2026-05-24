@@ -113,21 +113,35 @@ body {
 
 .screen-container { padding: 0 16px 24px; }
 
+/* ===== Screen Header — dark bar, full-bleed ===== */
 .screen-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0 16px;
+  gap: 8px;
+  padding: 14px 16px;
+  margin: 0 -16px 16px;          /* break out of .screen-container padding */
   position: sticky;
   top: 0;
-  background: var(--surface);
+  background: #2a2a2a;
+  border-bottom: 0.5px solid #4a4a4a;
   z-index: 10;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 16px;
 }
 
-.screen-title { font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
-.screen-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.screen-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e5e5e5;
+  letter-spacing: 0;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.screen-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 2px;
+}
 
 /* ===== Cards ===== */
 .card {
@@ -274,8 +288,8 @@ body {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  background: #2a2a2a;
+  border-top: 0.5px solid #4a4a4a;
   display: flex;
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom);
@@ -288,19 +302,20 @@ body {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 8px 2px;
+  padding: 14px 2px;
   background: none;
   border: none;
   cursor: pointer;
   min-height: 56px;
-  color: var(--text-muted);
+  color: #999;
   transition: color 0.15s;
   font-family: inherit;
 }
 
-.bottom-nav-item.active { color: var(--primary); }
+.bottom-nav-item.active { color: #4a90e2; }
 .nav-icon { font-size: 20px; line-height: 1; }
 .nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.2px; }
+.bottom-nav-item.active .nav-label { color: #4a90e2; font-weight: 600; }
 
 /* ===== Modal ===== */
 .modal-overlay {
