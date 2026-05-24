@@ -64,7 +64,7 @@ function StepWelcome({ onNext, onSkip }) {
               stroke="white" strokeWidth="1.7" strokeLinecap="round" />
           </svg>
         </div>
-        <div className="ob-brand-name">Finch</div>
+        <div className="ob-brand-name">Sprout</div>
         <p className="ob-tagline">
           Track your wealth, budget, debt &amp; goals —<br />all in one place.
         </p>
@@ -203,7 +203,7 @@ function StepStart({ onComplete, onPrev }) {
       id: 'example',
       icon: '📋',
       title: 'Start with sample data',
-      desc: 'Explore Finch with pre-filled Malaysian sample data.',
+      desc: 'Explore Sprout with pre-filled Malaysian sample data.',
     },
     {
       id: 'fresh',

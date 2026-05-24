@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { isOnboardingComplete } from './utils/storage';
 import { useAppData } from './hooks/useAppData';
 import OnboardingFlow from './components/onboarding/OnboardingFlow';
@@ -14,6 +14,12 @@ import NotificationModals from './components/notifications/NotificationModals';
 import './App.css';
 
 export default function App() {
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    }
+  }, []);
+
   const [onboarded, setOnboarded] = useState(() => isOnboardingComplete());
   const [activeTab, setActiveTab] = useState('dashboard');
 
