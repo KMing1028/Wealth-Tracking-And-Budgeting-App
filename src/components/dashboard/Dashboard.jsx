@@ -5,7 +5,6 @@ import { totalDebt, paidThisCycleCount, estimateDebtFreeDate } from '../../utils
 import {
   shouldShowBudgetResetNotification, markBudgetResetShown,
   shouldShowWeeklySummary, generateWeeklySummary, markWeeklySummaryShown,
-  shouldShowWealthGrowthUpdate, calculateMonthlyGrowth, markWealthGrowthShown,
   checkDebtPaymentReminder, markDebtPaymentReminderShown,
 } from '../../utils/notifications';
 
@@ -18,7 +17,6 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
 
   const [showResetCard, setShowResetCard] = useState(() => shouldShowBudgetResetNotification(cycleDay));
   const [showWeeklyCard, setShowWeeklyCard] = useState(() => shouldShowWeeklySummary());
-  const [showWealthCard, setShowWealthCard] = useState(() => shouldShowWealthGrowthUpdate());
   const [debtReminder, setDebtReminder] = useState(() => checkDebtPaymentReminder(debts, cycleDay));
 
   useEffect(() => {
@@ -27,7 +25,6 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
   }, [cycleDay, debts]);
 
   const weeklySummary = showWeeklyCard ? generateWeeklySummary(currentBudget) : null;
-  const wealthGrowth = showWealthCard ? calculateMonthlyGrowth(wealthData) : null;
   const debtFreeDate = debts.length > 0 ? estimateDebtFreeDate(debts) : null;
   const paidCount = paidThisCycleCount(debts);
 
@@ -54,53 +51,29 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
 
   return (
     <div className="screen-container">
-      {/* 1. Budget Cycle Reset */}
+      {/* 1. Budget Cycle Reset banner */}
       {showResetCard && (
-        <div className="notif-card reset">
-          <div className="notif-card-header">
-            <span className="notif-card-title">🔄 Budget Cycle Reset</span>
-            <button className="notif-card-close" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }} aria-label="Dismiss">×</button>
+        <div className="budget-reset-banner">
+          <div className="budget-reset-icon">🔄</div>
+          <div className="budget-reset-content">
+            <p className="budget-reset-title">Budget Cycle Reset</p>
+            <p className="budget-reset-text">Your budget has reset on the {cycleDay}th. Ready to start fresh this cycle!</p>
           </div>
-          <p className="notif-card-body">Your budget has reset for a new cycle! Expenses from last cycle are saved in history.</p>
-          <div className="notif-card-actions">
-            <button className="notif-card-btn" onClick={() => { onNavigate('budget'); markBudgetResetShown(); setShowResetCard(false); }}>View Budget</button>
-          </div>
+          <button className="budget-reset-dismiss" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }} aria-label="Dismiss">×</button>
         </div>
       )}
 
-      {/* 5. Weekly Spending Summary (Sundays) */}
+      {/* 5. Weekly Spending Summary card (Sundays) */}
       {showWeeklyCard && weeklySummary && (
-        <div className="notif-card weekly">
-          <div className="notif-card-header">
-            <span className="notif-card-title">📅 Weekly Spending Summary</span>
-            <button className="notif-card-close" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }} aria-label="Dismiss">×</button>
+        <div className="weekly-summary-card">
+          <div className="weekly-summary-header">
+            <p className="weekly-summary-title">📊 Weekly Spending Summary</p>
+            <button className="weekly-summary-dismiss" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }} aria-label="Dismiss">×</button>
           </div>
-          <p className="notif-card-body">
-            This week you logged <strong>{weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''}</strong> totalling <strong>{formatCurrency(weeklySummary.total, currency)}</strong>.
+          <p className="weekly-summary-intro">This week you spent:</p>
+          <p className="weekly-summary-total">
+            {weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''} &mdash; Total: <strong>{formatCurrency(weeklySummary.total, currency)}</strong>
           </p>
-          <div className="notif-card-actions">
-            <button className="notif-card-btn" onClick={() => { onNavigate('analytics'); markWeeklySummaryShown(); setShowWeeklyCard(false); }}>See Analytics</button>
-          </div>
-        </div>
-      )}
-
-      {/* 6. Wealth Growth Update (monthly) */}
-      {showWealthCard && wealthGrowth && wealthData.length > 0 && (
-        <div className="notif-card wealth-growth">
-          <div className="notif-card-header">
-            <span className="notif-card-title">💼 Monthly Wealth Update</span>
-            <button className="notif-card-close" onClick={() => { markWealthGrowthShown(); setShowWealthCard(false); }} aria-label="Dismiss">×</button>
-          </div>
-          <p className="notif-card-body">Your net worth this month:</p>
-          <div className={`notif-growth-stat ${wealthGrowth.change >= 0 ? 'positive' : 'negative'}`}>
-            {wealthGrowth.change >= 0 ? '▲' : '▼'} {formatCurrency(Math.abs(wealthGrowth.change), currency)}
-            <span style={{ fontSize: '13px', fontWeight: 400, opacity: 0.8 }}>
-              ({wealthGrowth.pct >= 0 ? '+' : ''}{wealthGrowth.pct.toFixed(1)}%)
-            </span>
-          </div>
-          <div className="notif-card-actions">
-            <button className="notif-card-btn" onClick={() => { onNavigate('wealth'); markWealthGrowthShown(); setShowWealthCard(false); }}>View Wealth</button>
-          </div>
         </div>
       )}
 

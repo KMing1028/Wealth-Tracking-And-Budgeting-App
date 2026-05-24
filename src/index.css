@@ -1677,3 +1677,312 @@ body {
 }
 .ob-notif-row:last-child { border-bottom: none; }
 .ob-notif-row span { color: var(--text-secondary); }
+
+/* ===== Notification Pop-up Modals ===== */
+
+.notif-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.notif-popup {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 340px;
+  overflow: hidden;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.notif-popup-header {
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.notif-popup-header.blue     { background: #4a90e2; }
+.notif-popup-header.growth   { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+.notif-popup-header.milestone { background: linear-gradient(135deg, #16a34a 0%, #0f6e56 100%); }
+
+.notif-popup-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.notif-popup-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.notif-popup-close:hover { opacity: 1; }
+
+.notif-popup-body {
+  padding: 1.5rem;
+}
+.notif-popup-body p {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+}
+
+/* default action button (blue — daily reminder) */
+.notif-popup-body > button:not(.notif-popup-btn) {
+  width: 100%;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.notif-popup-body > button:not(.notif-popup-btn):hover { background: #357abd; }
+
+/* named buttons */
+.notif-popup-btn {
+  width: 100%;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.notif-popup-btn.growth-btn { background: #3b82f6; }
+.notif-popup-btn.growth-btn:hover { background: #2563eb; }
+.notif-popup-btn.milestone-btn { background: #16a34a; }
+.notif-popup-btn.milestone-btn:hover { background: #0f6e56; }
+
+/* Wealth Growth popup extras */
+.notif-popup-growth-stats {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.notif-popup-growth-label {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 0.5rem !important;
+}
+.notif-popup-growth-pct {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 !important;
+}
+.notif-popup-growth-pct.positive { color: #16a34a; }
+.notif-popup-growth-pct.negative { color: #dc2626; }
+.notif-popup-detail {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 1.5rem !important;
+  line-height: 1.6;
+}
+
+/* Milestone popup extras */
+.milestone-body { text-align: center; }
+.notif-popup-milestone-icon { font-size: 32px; margin: 0 0 1rem; }
+.notif-popup-milestone-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 0.5rem !important;
+}
+.notif-popup-milestone-progress {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 1.5rem !important;
+  line-height: 1.6;
+}
+
+/* Dark theme — popups */
+[data-theme='dark'] .notif-popup { background: #2d2d2d; }
+[data-theme='dark'] .notif-popup-body p,
+[data-theme='dark'] .notif-popup-growth-label,
+[data-theme='dark'] .notif-popup-detail,
+[data-theme='dark'] .notif-popup-milestone-progress { color: #b3b3b3; }
+[data-theme='dark'] .notif-popup-growth-stats { background: rgba(59, 130, 246, 0.15); }
+[data-theme='dark'] .notif-popup-milestone-title { color: #e5e5e5; }
+
+/* ===== Budget Cycle Reset Banner ===== */
+
+.budget-reset-banner {
+  background: #f0fdf4;
+  border: 0.5px solid #86efac;
+  border-left: 4px solid #16a34a;
+  border-radius: 6px;
+  padding: 1rem;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 1rem;
+}
+.budget-reset-icon { font-size: 18px; flex-shrink: 0; }
+.budget-reset-content { flex: 1; }
+.budget-reset-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+  margin: 0;
+}
+.budget-reset-text {
+  font-size: 11px;
+  color: #666;
+  margin: 4px 0 0;
+}
+.budget-reset-dismiss {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  line-height: 1;
+}
+[data-theme='dark'] .budget-reset-banner {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  border-left-color: #22c55e;
+}
+[data-theme='dark'] .budget-reset-title { color: #22c55e; }
+[data-theme='dark'] .budget-reset-text  { color: #b3b3b3; }
+
+/* ===== Weekly Spending Summary Card ===== */
+
+.weekly-summary-card {
+  background: #f0f9ff;
+  border: 0.5px solid #bfdbfe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0 0 1rem;
+}
+.weekly-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+.weekly-summary-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+  margin: 0;
+}
+.weekly-summary-dismiss {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.weekly-summary-intro {
+  font-size: 11px;
+  color: #666;
+  margin: 0 0 0.5rem;
+}
+.weekly-summary-total {
+  font-size: 11px;
+  font-weight: 500;
+  color: #333;
+  margin: 0.5rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 0.5px solid #dbeafe;
+}
+[data-theme='dark'] .weekly-summary-card {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  border-left-color: #60a5fa;
+}
+[data-theme='dark'] .weekly-summary-title { color: #60a5fa; }
+[data-theme='dark'] .weekly-summary-intro { color: #b3b3b3; }
+[data-theme='dark'] .weekly-summary-total {
+  color: #e5e5e5;
+  border-top-color: rgba(59, 130, 246, 0.3);
+}
+
+/* ===== Budget Limit Warning Card ===== */
+
+.budget-warning-card {
+  background: #fef2f2;
+  border-left: 4px solid #dc2626;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 0 0 1rem;
+}
+.budget-warning-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 0;
+}
+.budget-warning-text {
+  font-size: 11px;
+  color: #666;
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+.budget-warning-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 8px;
+}
+.budget-warning-actions button {
+  flex: 1;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.budget-warning-actions .warn-primary {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+}
+.budget-warning-actions .warn-secondary {
+  background: transparent;
+  color: #dc2626;
+  border: 0.5px solid #dc2626;
+}
+[data-theme='dark'] .budget-warning-card {
+  background: rgba(220, 38, 38, 0.1);
+  border-left-color: #ef4444;
+}
+[data-theme='dark'] .budget-warning-title { color: #ef4444; }
+[data-theme='dark'] .budget-warning-text  { color: #b3b3b3; }

@@ -6,7 +6,6 @@ import { calcBucketTotals } from '../../utils/calculations';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { getCategoryIcon } from '../../utils/categories';
 import {
-  shouldShowDailyReminder, markDailyReminderShown,
   checkBudgetLimitWarning, markBudgetWarningShown,
 } from '../../utils/notifications';
 import Modal from '../common/Modal';
@@ -27,7 +26,6 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
   const [budgetInput, setBudgetInput] = useState('');
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('overview');
-  const [showDailyCard, setShowDailyCard] = useState(() => shouldShowDailyReminder());
   const [budgetWarning, setBudgetWarning] = useState(null);
 
   // Build sorted month list (most recent first)
@@ -114,37 +112,21 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
     return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
   }
 
-  const WARN_LABELS = { 75: '⚠️ 75% of budget used', 90: '🚨 90% of budget used', 100: '🔴 Budget limit reached!' };
+  const WARN_LABELS = { 75: '⚠️ Budget Alert: 75% Spent', 90: '⚠️ Budget Alert: 90% Spent', 100: '⚠️ Budget Alert: 100% Spent' };
 
   return (
     <div className="screen-container">
-      {/* 2. Daily Expense Reminder card */}
-      {showDailyCard && isCurrentMonth && (
-        <div className="notif-card reminder">
-          <div className="notif-card-header">
-            <span className="notif-card-title">💸 Daily Reminder</span>
-            <button className="notif-card-close" onClick={() => { markDailyReminderShown(); setShowDailyCard(false); }} aria-label="Dismiss">×</button>
-          </div>
-          <p className="notif-card-body">Have you logged all of today's expenses? Keeping records up to date helps you stay on budget.</p>
-          <div className="notif-card-actions">
-            <button className="notif-card-btn" onClick={() => { setShowExpenseForm(true); markDailyReminderShown(); setShowDailyCard(false); }}>Log Expense</button>
-          </div>
-        </div>
-      )}
-
-      {/* 3. Budget Limit Warning */}
+      {/* Budget Limit Warning card */}
       {budgetWarning && isCurrentMonth && (
-        <div className={`notif-card budget-warn level-${budgetWarning.level}`}>
-          <div className="notif-card-header">
-            <span className="notif-card-title">{WARN_LABELS[budgetWarning.level]}</span>
-            <button className="notif-card-close" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }} aria-label="Dismiss">×</button>
-          </div>
-          <p className="notif-card-body">
-            You've used <strong>{budgetWarning.pct}%</strong> of your monthly budget.
-            {budgetWarning.level < 100 ? ' Consider reducing discretionary spending.' : ' You have exceeded your budget for this cycle.'}
+        <div className="budget-warning-card">
+          <p className="budget-warning-title">{WARN_LABELS[budgetWarning.level]}</p>
+          <p className="budget-warning-text">
+            You've spent <strong>{budgetWarning.pct}%</strong> of your monthly budget.
+            {budgetWarning.level < 100 ? ' Be careful with remaining expenses!' : ' You have exceeded your budget for this cycle.'}
           </p>
-          <div className="notif-card-actions">
-            <button className="notif-card-btn" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>Got it</button>
+          <div className="budget-warning-actions">
+            <button className="warn-primary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>View Budget</button>
+            <button className="warn-secondary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>Dismiss</button>
           </div>
         </div>
       )}
