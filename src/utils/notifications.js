@@ -50,9 +50,12 @@ export function markBudgetWarningShown(budgetId, level) {
 // --- 4. Savings Goal Milestones ---
 const MILESTONES = [25, 50, 75, 100];
 
+function parseStoredArray(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
+}
+
 export function checkGoalMilestones(goals) {
-  const raw = localStorage.getItem('completedMilestones');
-  const done = raw ? JSON.parse(raw) : [];
+  const done = parseStoredArray('completedMilestones');
   for (const goal of goals) {
     const pct = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
     for (const m of MILESTONES) {
@@ -65,8 +68,7 @@ export function checkGoalMilestones(goals) {
   return null;
 }
 export function markMilestoneShown(key) {
-  const raw = localStorage.getItem('completedMilestones');
-  const done = raw ? JSON.parse(raw) : [];
+  const done = parseStoredArray('completedMilestones');
   if (!done.includes(key)) {
     done.push(key);
     localStorage.setItem('completedMilestones', JSON.stringify(done));

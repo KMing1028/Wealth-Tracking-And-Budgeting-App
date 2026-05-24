@@ -49,13 +49,17 @@ export default function Settings({
     onDataCleared();
   }
 
+  function safeParse(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+  }
+
   function handleExport() {
     const data = {
-      wealthData: JSON.parse(localStorage.getItem('wealthData') || '[]'),
-      budgetHistory: JSON.parse(localStorage.getItem('budgetHistory') || '[]'),
-      appSettings: JSON.parse(localStorage.getItem('appSettings') || '{}'),
-      savingsGoals: JSON.parse(localStorage.getItem('savingsGoals') || '[]'),
-      customCategories: JSON.parse(localStorage.getItem('customCategories') || '{}'),
+      wealthData: safeParse('wealthData', []),
+      budgetHistory: safeParse('budgetHistory', []),
+      appSettings: safeParse('appSettings', {}),
+      savingsGoals: safeParse('savingsGoals', []),
+      customCategories: safeParse('customCategories', {}),
       exportedAt: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
