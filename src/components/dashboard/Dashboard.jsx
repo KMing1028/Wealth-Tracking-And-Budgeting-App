@@ -50,33 +50,8 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
   const progressColor = budgetPct >= 90 ? '#ef4444' : budgetPct >= 70 ? '#f59e0b' : '#10b981';
 
   return (
+    <>
     <div className="screen-container">
-      {/* 1. Budget Cycle Reset banner */}
-      {showResetCard && (
-        <div className="budget-reset-banner">
-          <div className="budget-reset-icon">🔄</div>
-          <div className="budget-reset-content">
-            <p className="budget-reset-title">Budget Cycle Reset</p>
-            <p className="budget-reset-text">Your budget has reset on the {cycleDay}th. Ready to start fresh this cycle!</p>
-          </div>
-          <button className="budget-reset-dismiss" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }} aria-label="Dismiss">×</button>
-        </div>
-      )}
-
-      {/* 5. Weekly Spending Summary card (Sundays) */}
-      {showWeeklyCard && weeklySummary && (
-        <div className="weekly-summary-card">
-          <div className="weekly-summary-header">
-            <p className="weekly-summary-title">📊 Weekly Spending Summary</p>
-            <button className="weekly-summary-dismiss" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }} aria-label="Dismiss">×</button>
-          </div>
-          <p className="weekly-summary-intro">This week you spent:</p>
-          <p className="weekly-summary-total">
-            {weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''} &mdash; Total: <strong>{formatCurrency(weeklySummary.total, currency)}</strong>
-          </p>
-        </div>
-      )}
-
       <header className="screen-header">
         <h1 className="screen-title">Dashboard</h1>
         <p className="screen-subtitle">Your financial overview</p>
@@ -251,6 +226,31 @@ export default function Dashboard({ wealthData, currentBudget, settings, goals =
         </button>
       </div>
     </div>
+
+    {/* Fixed Notification Tray — above bottom nav */}
+    {(showResetCard || (showWeeklyCard && weeklySummary)) && (
+      <div className="notif-tray">
+        {showResetCard && (
+          <div className="notif-tray-card notif-tray-success">
+            <div className="notif-tray-content">
+              <p className="notif-tray-title">🔄 Budget Cycle Reset</p>
+              <p className="notif-tray-body">Your monthly budget has been reset. Start fresh!</p>
+            </div>
+            <button className="notif-ok-btn notif-ok-green" onClick={() => { markBudgetResetShown(); setShowResetCard(false); }}>OK</button>
+          </div>
+        )}
+        {showWeeklyCard && weeklySummary && (
+          <div className="notif-tray-card notif-tray-info">
+            <div className="notif-tray-content">
+              <p className="notif-tray-title">📊 Weekly Spending Summary</p>
+              <p className="notif-tray-body">This week: {formatCurrency(weeklySummary.total, currency)} across {weeklySummary.count} expense{weeklySummary.count !== 1 ? 's' : ''}.</p>
+            </div>
+            <button className="notif-ok-btn notif-ok-blue" onClick={() => { markWeeklySummaryShown(); setShowWeeklyCard(false); }}>OK</button>
+          </div>
+        )}
+      </div>
+    )}
+  </>
   );
 }
 

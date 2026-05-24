@@ -126,7 +126,7 @@ export default function BudgetTracker({ budgetHistory, updateCurrentBudget, curr
           </p>
           <div className="budget-warning-actions">
             <button className="warn-primary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>View Budget</button>
-            <button className="warn-secondary" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>Dismiss</button>
+            <button className="notif-ok-btn notif-ok-red" onClick={() => { markBudgetWarningShown(currentBudget.id, budgetWarning.level); setBudgetWarning(null); }}>OK</button>
           </div>
         </div>
       )}
